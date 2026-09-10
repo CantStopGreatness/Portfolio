@@ -309,10 +309,10 @@
 
     <!-- Nav -->
     <nav>
-      <a href="/" class="nav-name">Aryan Thakur</a>
+      <a href="#top" class="nav-name" onclick="return scrollToSection(event, null)">Aryan Thakur</a>
       <ul class="nav-links">
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#contact">Contact</a></li>
+        <li><a href="#projects" onclick="return scrollToSection(event, 'projects')">Projects</a></li>
+        <li><a href="#contact" onclick="return scrollToSection(event, 'contact')">Contact</a></li>
         <li><a href="https://github.com/CantStopGreatness" target="_blank">GitHub</a></li>
       </ul>
     </nav>
@@ -410,5 +410,18 @@
     </footer>
 
   </div>
+
+  <script>
+    function scrollToSection(e, id) {
+      e.preventDefault();
+      if (id) {
+        var el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      return false;
+    }
+  </script>
 </body>
 </html>
