@@ -38,12 +38,28 @@
       font-size: 15px;
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 8% 14%, rgba(96, 165, 250, 0.13), transparent 22rem),
+        radial-gradient(circle at 93% 45%, rgba(167, 139, 250, 0.10), transparent 26rem),
+        linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+      background-size: auto, auto, 52px 52px, 52px 52px;
     }
 
     .container {
       max-width: 1100px;
       margin: 0 auto;
       padding: 0 48px;
+      position: relative;
     }
 
     /* Nav */
@@ -75,8 +91,25 @@
 
     /* Hero */
     .hero {
-      padding: 80px 0 72px;
+      padding: 86px 0 76px;
       border-bottom: 1px solid var(--rule);
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      right: 3%;
+      top: 40px;
+      border: 1px solid rgba(96,165,250,0.24);
+      border-radius: 50%;
+      box-shadow: 0 0 0 42px rgba(96,165,250,0.035), 0 0 0 84px rgba(167,139,250,0.025);
+      background: radial-gradient(circle at 67% 35%, rgba(96,165,250,0.30) 0 2px, transparent 3px),
+                  radial-gradient(circle at 34% 64%, rgba(45,212,191,0.50) 0 3px, transparent 4px);
+      opacity: 0.9;
+      pointer-events: none;
     }
     .hero-eyebrow {
       font-size: 12px;
@@ -93,6 +126,8 @@
       color: var(--ink);
       margin-bottom: 24px;
       font-weight: 400;
+      position: relative;
+      z-index: 1;
     }
     .hero h1 em {
       font-style: italic;
@@ -107,11 +142,15 @@
       max-width: 520px;
       line-height: 1.7;
       margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
     }
     .hero-links {
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
     }
     .hero-links a {
       font-size: 13px;
@@ -130,7 +169,41 @@
     }
 
     /* Section */
-    section { padding: 64px 0; border-bottom: 1px solid var(--rule); }
+    section {
+      padding: 76px 34px;
+      margin: 0 -34px;
+      border-bottom: 1px solid var(--rule);
+      position: relative;
+      isolation: isolate;
+      transform: scale(0.965) translateY(24px);
+      opacity: 0.16;
+      filter: blur(2px);
+      transition: transform 650ms cubic-bezier(.22,1,.36,1), opacity 500ms ease, filter 500ms ease, background 500ms ease;
+      will-change: transform, opacity, filter;
+    }
+    section::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      inset: 16px 0;
+      border-radius: 24px;
+      background: linear-gradient(110deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008));
+      border: 1px solid transparent;
+      transition: border-color 500ms ease, background 500ms ease;
+    }
+    section.is-active {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      filter: blur(0);
+    }
+    section.is-active::before {
+      background: linear-gradient(110deg, rgba(255,255,255,0.055), rgba(255,255,255,0.012));
+      border-color: rgba(255,255,255,0.055);
+    }
+    #education.is-active::before { box-shadow: inset 4px 0 0 var(--blue); }
+    #experience.is-active::before { box-shadow: inset 4px 0 0 var(--purple); }
+    #projects.is-active::before { box-shadow: inset 4px 0 0 var(--orange); }
+    #contact.is-active::before { box-shadow: inset 4px 0 0 var(--teal); }
     section:last-child { border-bottom: none; }
 
     .section-label {
@@ -139,10 +212,81 @@
       text-transform: uppercase;
       color: var(--ink-3);
       margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+    .section-label::after {
+      content: '';
+      display: block;
+      height: 1px;
+      width: 48px;
+      background: currentColor;
+      opacity: 0.55;
+    }
+
+    /* About */
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(250px, 0.65fr);
+      gap: 48px;
+      align-items: start;
+    }
+    .about-lead {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(1.9rem, 4vw, 2.7rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      max-width: 620px;
+      margin-bottom: 22px;
+      font-weight: 400;
+    }
+    .about-lead em {
+      font-style: italic;
+      color: var(--blue);
+    }
+    .about-copy {
+      max-width: 590px;
+      color: var(--ink-2);
+      font-size: 15px;
+    }
+    .about-panel {
+      padding: 24px;
+      border: 1px solid rgba(96,165,250,0.20);
+      border-radius: 16px;
+      background: linear-gradient(145deg, rgba(96,165,250,0.12), rgba(167,139,250,0.05));
+    }
+    .about-panel-label {
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .about-list { list-style: none; }
+    .about-list li {
+      padding: 10px 0;
+      border-top: 1px solid rgba(255,255,255,0.09);
+      color: var(--ink-2);
+      font-size: 13px;
+    }
+    .about-list li:first-child { border-top: 0; padding-top: 0; }
+    .about-list span { color: var(--ink); display: block; margin-bottom: 2px; }
 
     /* Experience */
     .experience-item { margin-bottom: 28px; }
+    .experience-item {
+      padding: 18px 20px;
+      margin-left: -20px;
+      border-left: 1px solid rgba(255,255,255,0.10);
+      transition: background 220ms ease, border-color 220ms ease, transform 220ms ease;
+    }
+    .experience-item:hover {
+      background: rgba(255,255,255,0.035);
+      border-color: var(--purple);
+      transform: translateX(6px);
+    }
     .experience-item:last-child { margin-bottom: 0; }
     .experience-header {
       display: flex;
@@ -197,7 +341,7 @@
       padding: 32px;
       border-radius: 16px;
       border: 1px solid var(--rule);
-      background: var(--bg-2);
+      background: linear-gradient(145deg, rgba(31,31,31,0.94), rgba(18,18,18,0.94));
       transition: box-shadow 0.2s, border-color 0.2s;
       position: relative;
       overflow: hidden;
@@ -217,6 +361,7 @@
     .project:hover {
       box-shadow: 0 8px 40px rgba(0,0,0,0.4);
       border-color: #3A3A3A;
+      transform: translateY(-5px);
     }
 
     .project-header {
@@ -304,10 +449,10 @@
       padding: 20px;
       border-radius: 12px;
       border: 1px solid var(--rule);
-      background: var(--bg-2);
-      transition: border-color 0.15s;
+      background: linear-gradient(135deg, var(--bg-2), rgba(30,30,30,0.55));
+      transition: border-color 0.15s, transform 0.15s, background 0.15s;
     }
-    .contact-item:hover { border-color: var(--blue); }
+    .contact-item:hover { border-color: var(--blue); transform: translateY(-3px); background: rgba(96,165,250,0.10); }
     .contact-label {
       font-size: 11px;
       letter-spacing: 0.12em;
@@ -336,8 +481,12 @@
     /* Responsive */
     @media (max-width: 800px) {
       .projects-grid { grid-template-columns: 1fr; }
+      .about-grid { grid-template-columns: 1fr; gap: 28px; }
+      .hero::after { right: -90px; opacity: 0.55; }
     }
     @media (max-width: 560px) {
+      .container { padding: 0 22px; }
+      section { padding: 58px 22px; margin: 0 -22px; }
       .contact-grid { grid-template-columns: 1fr; }
       .hero h1 { font-size: 2.2rem; }
       .project-header { flex-direction: column; align-items: flex-start; gap: 12px; }
@@ -350,12 +499,11 @@
       to   { opacity: 1; transform: translateY(0); }
     }
     .hero { animation: fadeUp 0.5s ease both; }
-    .project { animation: fadeUp 0.5s ease both; }
-    .project:nth-child(2) { animation-delay: 0.1s; }
-    .contact-item { animation: fadeUp 0.4s ease both; }
-    .contact-item:nth-child(2) { animation-delay: 0.05s; }
-    .contact-item:nth-child(3) { animation-delay: 0.10s; }
-    .contact-item:nth-child(4) { animation-delay: 0.15s; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+      section { opacity: 1; filter: none; transform: none; }
+    }
   </style>
 </head>
 <body>
@@ -365,6 +513,7 @@
     <nav>
       <a href="#top" class="nav-name" onclick="return scrollToSection(event, null)">Aryan Thakur</a>
       <ul class="nav-links">
+        <li><a href="#about" onclick="return scrollToSection(event, 'about')">About</a></li>
         <li><a href="#education" onclick="return scrollToSection(event, 'education')">Education</a></li>
         <li><a href="#experience" onclick="return scrollToSection(event, 'experience')">Experience</a></li>
         <li><a href="#projects" onclick="return scrollToSection(event, 'projects')">Projects</a></li>
@@ -373,19 +522,26 @@
       </ul>
     </nav>
 
-    <!-- Hero -->
-    <div class="hero">
-      <p class="hero-eyebrow">Software Developer at Waterloo, Ontario</p>
-      <h1>Building things that<br /><em>actually help people.</em></h1>
-      <p class="hero-bio">
-        Second year Mathematics student at the University of Waterloo. I build full-stack web apps and AI-powered tools that solve real problems such as legal access, sports analytics, and whatever comes next.
-      </p>
-      <div class="hero-links">
-        <a href="https://github.com/CantStopGreatness" target="_blank">GitHub</a>
-        <a href="mailto:aryan.thakur1508@gmail.com" onclick="return copyEmailFallback(event, this)">Email me</a>
-        <a href="https://www.linkedin.com/in/aryan-thakur-028691355/" target="_blank">LinkedIn</a>
+    <!-- About -->
+    <section id="about">
+      <p class="section-label">About me</p>
+      <div class="about-grid">
+        <div>
+          <h1 class="about-lead">A second-year <em>Mathematics</em> student, commuting to the University of Waterloo.</h1>
+          <p class="about-copy">
+            I like spending my time building things, learning new ideas, and keeping active. Before university, I competed in Track &amp; Field as an 800m runner—a sport that taught me how much consistency and a good final kick can matter.
+          </p>
+        </div>
+        <aside class="about-panel" aria-label="A few things about me">
+          <p class="about-panel-label">Outside class</p>
+          <ul class="about-list">
+            <li><span>Chess &amp; coding</span>Strategy, problem-solving, and tinkering.</li>
+            <li><span>Gym &amp; movement</span>Anything physical is usually a good plan.</li>
+            <li><span>My Own “Must Watch”</span>Supernatural · Prison Break · Suits · The Flash</li>
+          </ul>
+        </aside>
       </div>
-    </div>
+    </section>
 
     <!-- Education -->
     <section id="education">
@@ -550,6 +706,32 @@
       }
       return false;
     }
+
+    // Keep the section closest to the middle of the viewport in focus. The
+    // surrounding sections deliberately soften and scale down, so scrolling
+    // feels like moving between distinct chapters rather than one long page.
+    (function () {
+      var sections = Array.prototype.slice.call(document.querySelectorAll('section'));
+
+      function setActiveSection() {
+        var viewportCenter = window.innerHeight / 2;
+        var closest = sections.reduce(function (current, section) {
+          // offsetTop/offsetHeight are intentional here: visual transforms are
+          // part of the effect, but should not change which section is picked.
+          var visualCenter = section.offsetTop - window.scrollY + section.offsetHeight / 2;
+          var distance = Math.abs(visualCenter - viewportCenter);
+          return !current || distance < current.distance ? { section: section, distance: distance } : current;
+        }, null);
+
+        sections.forEach(function (section) {
+          section.classList.toggle('is-active', closest && section === closest.section);
+        });
+      }
+
+      window.addEventListener('scroll', setActiveSection, { passive: true });
+      window.addEventListener('resize', setActiveSection);
+      setActiveSection();
+    }());
   </script>
 </body>
 </html>
