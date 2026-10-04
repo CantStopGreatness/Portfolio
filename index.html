@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Aryan Thakur</title>
+  <script>document.documentElement.classList.add('js');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
@@ -16,7 +17,7 @@
       --rule:      #2A2A2A;
       --ink:       #F0F0EE;
       --ink-2:     #A0A09C;
-      --ink-3:     #606060;
+      --ink-3:     #8A8A8A;
       --blue:      #60A5FA;
       --blue-bg:   rgba(96,165,250,0.10);
       --purple:    #A78BFA;
@@ -175,11 +176,14 @@
       border-bottom: 1px solid var(--rule);
       position: relative;
       isolation: isolate;
-      transform: scale(0.965) translateY(24px);
-      opacity: 0.16;
-      filter: blur(2px);
-      transition: transform 650ms cubic-bezier(.22,1,.36,1), opacity 500ms ease, filter 500ms ease, background 500ms ease;
-      will-change: transform, opacity, filter;
+      transition: transform 650ms cubic-bezier(.22,1,.36,1), opacity 500ms ease, background 500ms ease;
+    }
+    /* Only dim inactive sections once JS is running, so content stays fully
+       visible if the script never loads. */
+    .js section {
+      transform: scale(0.98) translateY(12px);
+      opacity: 0.6;
+      will-change: transform, opacity;
     }
     section::before {
       content: '';
@@ -191,10 +195,10 @@
       border: 1px solid transparent;
       transition: border-color 500ms ease, background 500ms ease;
     }
-    section.is-active {
+    .js section.is-active,
+    .js section:focus-within {
       transform: scale(1) translateY(0);
       opacity: 1;
-      filter: blur(0);
     }
     section.is-active::before {
       background: linear-gradient(110deg, rgba(255,255,255,0.055), rgba(255,255,255,0.012));
@@ -544,7 +548,15 @@
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
-      section { opacity: 1; filter: none; transform: none; }
+      .js section { opacity: 1; transform: none; }
+    }
+
+    /* Keyboard focus */
+    a:focus-visible,
+    button:focus-visible,
+    [tabindex]:focus-visible {
+      outline: 2px solid var(--blue);
+      outline-offset: 3px;
     }
   </style>
 </head>
