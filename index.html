@@ -524,6 +524,98 @@
     }
     footer p { font-size: 12px; color: var(--ink-3); }
 
+    /* Card carousel: sections with several jobs or projects show one card at a
+       time. Built entirely by JS, so without it every card stays visible. */
+    .carousel-track {
+      display: grid;
+    }
+    .carousel-ready.projects-grid { display: block; }
+    .carousel-slide {
+      grid-area: 1 / 1;
+      min-width: 0;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(-56px);
+      transition: opacity 420ms ease, transform 560ms cubic-bezier(.22,1,.36,1), visibility 0s linear 560ms;
+    }
+    .carousel-slide.is-current {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      transition-delay: 60ms, 0s, 0s;
+    }
+    .carousel-slide.from-right,
+    .carousel-slide.leave-right { transform: translateX(56px); }
+    .carousel-slide.from-left,
+    .carousel-slide.leave-left { transform: translateX(-56px); }
+    .carousel-slide.no-transition { transition: none; }
+    .carousel-slide > .experience-item,
+    .carousel-slide > .project { margin-bottom: 0; height: 100%; }
+    .carousel-track { touch-action: pan-y; }
+    .carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 22px;
+    }
+    .carousel-count {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      color: var(--ink-3);
+      font-variant-numeric: tabular-nums;
+      min-width: 4.5em;
+    }
+    .carousel-count strong { color: var(--ink); font-weight: 500; }
+    .carousel-dots {
+      display: flex;
+      gap: 4px;
+      list-style: none;
+    }
+    .carousel-dot {
+      width: 24px;
+      height: 24px;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+    }
+    .carousel-dot::before {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--ink-3);
+      opacity: 0.55;
+      transition: width 300ms cubic-bezier(.22,1,.36,1), background 300ms ease, opacity 300ms ease;
+    }
+    .carousel-dot:hover::before { opacity: 1; }
+    .carousel-dot[aria-current="true"]::before {
+      width: 20px;
+      background: var(--ink);
+      opacity: 1;
+    }
+    .carousel-arrows { display: flex; gap: 10px; }
+    .carousel-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1px solid var(--rule);
+      background: var(--bg-2);
+      color: var(--ink);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      transition: border-color 0.15s, color 0.15s, transform 0.15s;
+    }
+    .carousel-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .carousel-btn:active { transform: scale(0.94); }
+    .carousel-btn svg { width: 18px; height: 18px; }
+    #experience .carousel-btn:hover { border-color: var(--purple); color: var(--purple); }
+    #projects .carousel-btn:hover { border-color: var(--orange); color: var(--orange); }
+
     /* Responsive */
     @media (max-width: 800px) {
       .projects-grid { grid-template-columns: 1fr; }
@@ -624,6 +716,7 @@
     <section id="experience">
       <h2 class="section-label">Experience</h2>
 
+      <div class="carousel" data-carousel data-item-label="Job" aria-label="Jobs">
       <div class="experience-item">
         <div class="experience-header">
           <h3 class="experience-company">CyberWolfe</h3>
@@ -661,13 +754,14 @@
           <li>Provide consistent mentorship to build confidence and long-term academic growth</li>
         </ul>
       </div>
+      </div>
     </section>
 
     <!-- Projects -->
     <section id="projects">
       <h2 class="section-label">Projects</h2>
 
-      <div class="projects-grid">
+      <div class="projects-grid carousel" data-carousel data-item-label="Project" aria-label="Projects">
       <div class="project waive">
         <div class="project-header">
           <div class="project-meta">
@@ -778,6 +872,146 @@
       }
       return false;
     }
+
+    // Turn every [data-carousel] list (jobs, projects) into a one-card-at-a-time
+    // carousel. The outgoing card fades off to one side while the next one
+    // slides in from the other, like flipping through flash cards.
+    (function () {
+      var ARROW_PREV = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>';
+      var ARROW_NEXT = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>';
+
+      function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+      function setup(root) {
+        var items = Array.prototype.slice.call(root.children);
+        if (items.length < 2) return;
+
+        var noun = root.getAttribute('data-item-label') || 'Item';
+        var total = items.length;
+        var current = 0;
+
+        var track = document.createElement('div');
+        track.className = 'carousel-track';
+        track.setAttribute('aria-live', 'off');
+
+        var slides = items.map(function (item, i) {
+          var slide = document.createElement('div');
+          slide.className = 'carousel-slide';
+          slide.setAttribute('role', 'group');
+          slide.setAttribute('aria-roledescription', 'slide');
+          slide.setAttribute('aria-label', (i + 1) + ' of ' + total);
+          slide.appendChild(item);
+          track.appendChild(slide);
+          return slide;
+        });
+
+        var controls = document.createElement('div');
+        controls.className = 'carousel-controls';
+        controls.innerHTML =
+          '<p class="carousel-count" aria-hidden="true"><strong></strong> / ' + pad(total) + '</p>' +
+          '<ul class="carousel-dots"></ul>' +
+          '<div class="carousel-arrows">' +
+            '<button type="button" class="carousel-btn" data-dir="-1" aria-label="Previous ' + noun.toLowerCase() + '">' + ARROW_PREV + '</button>' +
+            '<button type="button" class="carousel-btn" data-dir="1" aria-label="Next ' + noun.toLowerCase() + '">' + ARROW_NEXT + '</button>' +
+          '</div>';
+
+        var countEl = controls.querySelector('.carousel-count strong');
+        var dotList = controls.querySelector('.carousel-dots');
+        var dots = slides.map(function (slide, i) {
+          var li = document.createElement('li');
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'carousel-dot';
+          var heading = slide.querySelector('h3');
+          dot.setAttribute('aria-label', noun + ' ' + (i + 1) + (heading ? ': ' + heading.textContent.trim() : ''));
+          dot.addEventListener('click', function () { goTo(i); });
+          li.appendChild(dot);
+          dotList.appendChild(li);
+          return dot;
+        });
+
+        var status = document.createElement('p');
+        status.className = 'sr-only';
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
+
+        root.setAttribute('role', 'region');
+        root.setAttribute('aria-roledescription', 'carousel');
+        root.classList.add('carousel-ready');
+        root.appendChild(track);
+        root.appendChild(controls);
+        root.appendChild(status);
+
+        function render() {
+          slides.forEach(function (slide, i) {
+            var on = i === current;
+            slide.classList.toggle('is-current', on);
+            slide.toggleAttribute('inert', !on);
+            slide.setAttribute('aria-hidden', on ? 'false' : 'true');
+          });
+          dots.forEach(function (dot, i) {
+            dot.setAttribute('aria-current', i === current ? 'true' : 'false');
+          });
+          countEl.textContent = pad(current + 1);
+        }
+
+        function goTo(index, dir) {
+          index = (index + total) % total;
+          if (index === current) return;
+          if (!dir) dir = index > current ? 1 : -1;
+          var outgoing = slides[current];
+          var incoming = slides[index];
+
+          // Park the incoming card on the side it enters from, without animating.
+          incoming.classList.remove('leave-left', 'leave-right', 'from-left', 'from-right');
+          incoming.classList.add('no-transition', dir > 0 ? 'from-right' : 'from-left');
+          void incoming.offsetWidth;
+          incoming.classList.remove('no-transition', 'from-left', 'from-right');
+
+          outgoing.classList.remove('leave-left', 'leave-right');
+          outgoing.classList.add(dir > 0 ? 'leave-left' : 'leave-right');
+
+          current = index;
+          render();
+
+          var heading = incoming.querySelector('h3');
+          status.textContent = noun + ' ' + (index + 1) + ' of ' + total +
+            (heading ? ': ' + heading.textContent.trim() : '');
+        }
+
+        controls.querySelectorAll('.carousel-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var dir = Number(btn.getAttribute('data-dir'));
+            goTo(current + dir, dir);
+          });
+        });
+
+        root.addEventListener('keydown', function (e) {
+          if (e.key === 'ArrowRight') { goTo(current + 1, 1); e.preventDefault(); }
+          else if (e.key === 'ArrowLeft') { goTo(current - 1, -1); e.preventDefault(); }
+        });
+
+        // Horizontal swipe on touch screens.
+        var startX = null, startY = null;
+        track.addEventListener('pointerdown', function (e) {
+          if (e.pointerType === 'mouse') return;
+          startX = e.clientX; startY = e.clientY;
+        });
+        track.addEventListener('pointerup', function (e) {
+          if (startX === null) return;
+          var dx = e.clientX - startX, dy = e.clientY - startY;
+          startX = null;
+          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+            goTo(current + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+          }
+        });
+        track.addEventListener('pointercancel', function () { startX = null; });
+
+        render();
+      }
+
+      document.querySelectorAll('[data-carousel]').forEach(setup);
+    }());
 
     // Keep the section closest to the middle of the viewport in focus. The
     // surrounding sections deliberately soften and scale down, so scrolling
