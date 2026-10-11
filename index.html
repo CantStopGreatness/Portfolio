@@ -6,9 +6,8 @@
   <title>Aryan Thakur</title>
   <script>
     document.documentElement.classList.add('js');
-    if (!/^#(universe|about|education|experience|projects|contact|go-home)$/.test(location.hash)) {
-      document.documentElement.classList.add('at-home', 'diving');
-    }
+    // Every visit starts on the Earth home page (see the router below).
+    document.documentElement.classList.add('at-home', 'diving');
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
@@ -790,7 +789,7 @@
       line-height: 1;
       letter-spacing: -0.02em;
       color: var(--ink);
-      text-shadow: 0 0 40px rgba(167,139,250,0.25), 0 0 80px rgba(96,165,250,0.15);
+      text-shadow: 0 0 40px rgba(167,139,250,0.25), 0 0 80px rgba(96,165,250,0.15), 0 2px 18px rgba(5,5,8,0.9);
     }
     .universe-kicker {
       display: block;
@@ -875,6 +874,7 @@
       text-transform: uppercase;
       white-space: nowrap;
       color: var(--ink-2);
+      text-shadow: 0 1px 6px rgba(5,5,8,0.95);
       transition: color 0.25s, opacity 0.4s;
     }
     .star:hover .star-core,
@@ -1490,9 +1490,9 @@
         var comet = kind === 'comet';
         streaks.push({
           d0: d0, b: b, angle: 0, age: 0,
-          speed: comet ? rand(0.035, 0.06) : rand(1.1, 1.7),  // rad/s
+          speed: comet ? rand(0.045, 0.07) : rand(0.8, 1.2),  // rad/s
           tail: comet ? rand(0.4, 0.55) : rand(0.16, 0.28),   // rad
-          life: comet ? rand(12, 18) : rand(0.5, 0.9),        // s
+          life: comet ? rand(10, 14) : rand(0.9, 1.4),        // s
           fadeIn: comet ? 1.5 : 0.1, fadeOut: comet ? 2.5 : 0.3,
           width: comet ? 5 : 2.8,
           head: comet ? 7 : 1.8,
@@ -1559,6 +1559,7 @@
           if (warp.start === null) warp.start = t;
           var wp = (t - warp.start) / warp.ms;
           if (wp >= 1) warp = null; else warpAmt = Math.sin(Math.PI * wp);
+          if (wp > 0.5 && warp && !warp.faced) { yaw = pitch = velYaw = velPitch = 0; warp.faced = true; }
         }
         var skyAlpha = 1 - Math.min(1, warpAmt * 1.6);
 
@@ -1575,12 +1576,17 @@
           ctx.fill();
         }
 
+        if (skyAlpha > 0) drawPlanets(skyAlpha);
         if (warpAmt > 0) drawWarp(warpAmt, dt);
 
         if (!reduce && warpAmt < 0.1) {
-          if (!nextMeteor) { nextMeteor = t + rand(800, 2000); nextComet = t + rand(3000, 6000); }
-          if (t >= nextMeteor) { spawn('meteor'); nextMeteor = t + rand(1000, 3500); }
-          if (t >= nextComet) { spawn('comet'); nextComet = t + rand(8000, 15000); }
+          if (!nextMeteor) { nextMeteor = t + rand(400, 1200); nextComet = t + rand(1500, 3000); }
+          if (t >= nextMeteor) {
+            spawn('meteor');
+            if (Math.random() < 0.25) { spawn('meteor'); spawn('meteor'); } // a small shower
+            nextMeteor = t + rand(600, 2000);
+          }
+          if (t >= nextComet) { spawn('comet'); nextComet = t + rand(5000, 9000); }
           for (var j = streaks.length - 1; j >= 0; j--) {
             var st = streaks[j];
             st.age += dt;
@@ -1589,6 +1595,128 @@
             drawStreak(st);
           }
         }
+        ctx.globalAlpha = 1;
+      }
+
+      // Planets, fixed in the sky in different directions, so turning around
+      // finds a different one. Drawn on the canvas, under the section stars
+      // (page elements), so they never cover a star or its label.
+      // Directions: degrees to the right of the starting view, and up.
+      function dirOf(right, up) {
+        var a = right * Math.PI / 180, e = up * Math.PI / 180;
+        return [Math.cos(e) * Math.sin(a), Math.sin(e), Math.cos(e) * Math.cos(a)];
+      }
+      var PLANETS = [
+        // right: an ocean world with a small moon
+        { dir: dirOf(90, 20), size: 0.15, base: '#2E6BD9', light: '#A5CCFF', dark: '#06122B', glow: '96,165,250' },
+        { dir: dirOf(102, 30), size: 0.035, base: '#8B8F98', light: '#E5E7EB', dark: '#0E1014', glow: '210,214,222' },
+        // left: a banded orange giant
+        { dir: dirOf(-90, -22), size: 0.19, base: '#D9792E', light: '#FFC896', dark: '#220E04', glow: '251,146,60', bands: 7 },
+        // behind: a ringed gold planet
+        { dir: dirOf(180, 21), size: 0.14, base: '#C9A86A', light: '#F5E6BE', dark: '#1F1608', glow: '240,210,150', bands: 9, ring: { tilt: -0.38, color: '232,212,170' } },
+        // overhead: a small red planet
+        { dir: dirOf(-35, 55), size: 0.07, base: '#B5452F', light: '#F4A285', dark: '#1A0705', glow: '248,113,113' },
+        // below, behind to the right: a violet ice giant
+        { dir: dirOf(140, -40), size: 0.11, base: '#6D4FC2', light: '#CBBEFF', dark: '#100828', glow: '167,139,250' }
+      ];
+
+      function drawRing(p, x, y, r, front) {
+        // Lower half of the ellipse is in front of the planet, upper half behind.
+        var from = front ? 0 : Math.PI, to = front ? Math.PI : Math.PI * 2;
+        ctx.lineCap = 'butt';
+        ctx.strokeStyle = 'rgba(' + p.ring.color + ',0.55)';
+        ctx.lineWidth = r * 0.28;
+        ctx.beginPath(); ctx.ellipse(x, y, r * 2.1, r * 0.5, p.ring.tilt, from, to); ctx.stroke();
+        ctx.strokeStyle = 'rgba(' + p.ring.color + ',0.3)';
+        ctx.lineWidth = r * 0.08;
+        ctx.beginPath(); ctx.ellipse(x, y, r * 2.55, r * 0.61, p.ring.tilt, from, to); ctx.stroke();
+      }
+
+      function drawPlanet(p, x, y, r) {
+        var halo = ctx.createRadialGradient(x, y, r * 0.85, x, y, r * 1.45);
+        halo.addColorStop(0, 'rgba(' + p.glow + ',0.32)');
+        halo.addColorStop(1, 'rgba(' + p.glow + ',0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath(); ctx.arc(x, y, r * 1.45, 0, Math.PI * 2); ctx.fill();
+        if (p.ring) drawRing(p, x, y, r, false);
+
+        ctx.save();
+        ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.clip();
+        // Lit from the upper left, falling off into shadow on the lower right.
+        var body = ctx.createRadialGradient(x - r * 0.4, y - r * 0.45, r * 0.05, x - r * 0.1, y - r * 0.1, r * 1.25);
+        body.addColorStop(0, p.light);
+        body.addColorStop(0.45, p.base);
+        body.addColorStop(1, p.dark);
+        ctx.fillStyle = body;
+        ctx.fillRect(x - r, y - r, r * 2, r * 2);
+        if (p.bands) {
+          ctx.translate(x, y);
+          ctx.rotate(p.ring ? p.ring.tilt : -0.12);
+          var bh = 2 * r / p.bands;
+          for (var b = 0; b < p.bands; b++) {
+            ctx.fillStyle = b % 2 ? 'rgba(255,240,220,0.08)' : 'rgba(60,30,10,0.14)';
+            ctx.fillRect(-r * 1.2, -r + bh * b, r * 2.4, bh * (0.55 + 0.08 * ((b * 3) % 5)));
+          }
+        }
+        ctx.restore();
+        if (p.ring) drawRing(p, x, y, r, true);
+      }
+
+      // Planets are drawn on their own layer first, then a soft hole is cut
+      // around each section star and its label, so a planet drifting behind
+      // a star never covers it. offsetLeft/Top ignore the zoom transform, so
+      // they match the canvas's own coordinates.
+      var planetLayer = document.createElement('canvas');
+      var pctx = planetLayer.getContext('2d');
+      var sectionStars = Array.prototype.slice.call(document.querySelectorAll('.star'));
+      function cutHole(x, y, radius, stretch) {
+        pctx.save();
+        pctx.translate(x, y);
+        pctx.scale(stretch, 1);
+        var g = pctx.createRadialGradient(0, 0, 0, 0, 0, radius);
+        g.addColorStop(0, 'rgba(0,0,0,1)');
+        g.addColorStop(0.55, 'rgba(0,0,0,0.85)');
+        g.addColorStop(1, 'rgba(0,0,0,0)');
+        pctx.fillStyle = g;
+        pctx.beginPath(); pctx.arc(0, 0, radius, 0, Math.PI * 2); pctx.fill();
+        pctx.restore();
+      }
+
+      var pc = {};
+      function drawPlanets(alpha) {
+        var mainCtx = ctx, any = false;
+        ctx = pctx; // drawPlanet/drawRing draw on whatever ctx is
+        for (var i = 0; i < PLANETS.length; i++) {
+          var p = PLANETS[i];
+          if (!project(p.dir[0], p.dir[1], p.dir[2], pc)) continue;
+          var r = focal * p.size;
+          var reach = r * (p.ring ? 2.7 : 1.5);
+          if (pc.x < -reach || pc.x > w + reach || pc.y < -reach || pc.y > h + reach) continue;
+          if (!any) {
+            if (planetLayer.width !== canvas.width || planetLayer.height !== canvas.height) {
+              planetLayer.width = canvas.width;
+              planetLayer.height = canvas.height;
+            }
+            pctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
+            pctx.clearRect(0, 0, w, h);
+            any = true;
+          }
+          drawPlanet(p, pc.x, pc.y, r);
+        }
+        ctx = mainCtx;
+        if (!any) return;
+        if (!document.documentElement.classList.contains('at-home')) {
+          pctx.globalCompositeOperation = 'destination-out';
+          sectionStars.forEach(function (star) {
+            var sx = star.offsetLeft + star.offsetWidth / 2, sy = star.offsetTop + star.offsetHeight / 2;
+            var label = star.firstElementChild;
+            cutHole(sx, sy, 52, 1);
+            cutHole(sx, star.offsetTop + label.offsetTop + label.offsetHeight / 2, 34, label.offsetWidth / 50);
+          });
+          pctx.globalCompositeOperation = 'source-over';
+        }
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(planetLayer, 0, 0, w, h);
         ctx.globalAlpha = 1;
       }
 
@@ -2007,7 +2135,11 @@
 
       document.getElementById('dive-in').addEventListener('click', function () {
         history.pushState({ view: 'universe', pushed: true }, '', '#universe');
-        go('universe', true);
+        // Arrived on a section link (/#projects)? Fly straight into that star.
+        var target = linkedStar || 'universe';
+        if (linkedStar) history.pushState({ view: linkedStar, pushed: true }, '', '#' + linkedStar);
+        linkedStar = null;
+        go(target, true);
       });
       universe.addEventListener('click', function (e) {
         var star = e.target.closest('.star');
@@ -2028,25 +2160,12 @@
       });
       window.addEventListener('popstate', function () { go(viewFromHash(), true); });
 
-      // First load. Links into the universe (/#projects) open straight there.
-      // No history entries are added for Earth behind them: Chrome's Back
-      // button skips entries a page adds without a click, so Exit and the Go
-      // Home star are the way back instead.
+      // First load always starts on Earth, even on a reload of /#universe.
+      // A section link (/#projects) is remembered, and Dive in goes there.
       var initial = viewFromHash();
-      if (initial === 'home') {
-        history.replaceState({ view: 'home' }, '', location.pathname + location.search);
-        go('home', false);
-      } else {
-        history.replaceState({ view: initial }, '', location.hash);
-        root.classList.add('no-anim');
-        go(initial, false);
-        // The browser jumps to the #id element after load; undo that so the
-        // panel starts at the top of its own scroll area.
-        window.addEventListener('load', function () { main.scrollTop = 0; });
-        requestAnimationFrame(function () {
-          requestAnimationFrame(function () { root.classList.remove('no-anim'); });
-        });
-      }
+      var linkedStar = initial !== 'home' && initial !== 'universe' ? initial : null;
+      history.replaceState({ view: 'home' }, '', location.pathname + location.search);
+      go('home', false);
     }());
 
     // Journey ratings: thumbs up/down totals shared by every visitor, stored
