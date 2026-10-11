@@ -4,7 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="google-site-verification" content="lIunXseL4-mAnJML6cuSyGtToEP8wYboR9SIp3cK4K0" />
   <title>Aryan Thakur</title>
-  <script>document.documentElement.classList.add('js');</script>
+  <script>
+    document.documentElement.classList.add('js');
+    if (!/^#(universe|about|education|experience|projects|contact|go-home)$/.test(location.hash)) {
+      document.documentElement.classList.add('at-home', 'diving');
+    }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
   <style>
@@ -29,6 +34,7 @@
       --teal:      #2DD4BF;
       --teal-bg:   rgba(45,212,191,0.10);
       --red:       #F87171;
+      --cyan:      #22D3EE;
     }
 
     html { scroll-behavior: smooth; }
@@ -654,11 +660,10 @@
       transition: transform 0.9s cubic-bezier(.65,0,.35,1), filter 0.9s ease;
     }
     /* Scale up around the star while sliding it to the centre of the screen.
-       3.6 is the smallest scale that still covers the screen edges for the
-       outermost star (Experience/Contact at ~15% from an edge); keep it above
-       0.5 / (closest star's distance from an edge) if stars move. */
+       --zoom is set per star by JS: big enough that the sky still covers the
+       screen edges after the slide (stars near an edge need more). */
     .js.in-star .universe {
-      transform: translate(calc(50vw - var(--ox, 50vw)), calc(50vh - var(--oy, 50vh))) scale(3.6);
+      transform: translate(calc(50vw - var(--ox, 50vw)), calc(50vh - var(--oy, 50vh))) scale(var(--zoom, 3.6));
       filter: blur(3px) brightness(0.55);
     }
     /* The entered star's colour washes over the sky behind the panel. */
@@ -762,6 +767,8 @@
     .js body::before { display: none; }
 
     #sky { position: absolute; inset: 0; display: block; }
+    /* The sky handles touch drags itself (to turn the view). */
+    .js .universe { touch-action: none; }
 
     /* Centred with flex, not transform, so the fadeUp animation can't move it. */
     .universe-heading {
@@ -912,10 +919,199 @@
       .star::before { animation: none; }
       .js.in-star .universe { transform: none; }
       .js section.is-open { transform: none; }
-      .js .universe, .js .universe::after, .js main {
+      .js .universe, .js .universe::after, .js main, .js .home, .universe-ui, .home-content {
         transition-duration: 0.3s !important;
         transition-delay: 0s !important;
       }
+      .earth-img { animation: none; }
+      .js.diving .earth { transform: none; }
+    }
+
+
+    /* Universe controls (title, stars, footer) in one wrapper so the Earth
+       home page can hide them together. */
+    .universe-ui { position: absolute; inset: 0; transition: opacity 0.8s ease, visibility 0s; }
+    .js.at-home .universe-ui {
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    }
+
+    /* Earth home page: the landing screen, layered over the sky. */
+    .home { display: none; }
+    .js .home {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+    }
+    .js.at-home .home { opacity: 1; visibility: visible; transition: opacity 0.8s ease, visibility 0s; }
+
+    /* Rising back into view (returning home) eases out; falling away
+       (.diving, on Dive in) eases in. The class stays on while away. */
+    .earth {
+      position: absolute;
+      inset: 0;
+      transform-origin: 50% 62%;
+      transition: transform 1.9s cubic-bezier(.16,.84,.3,1), opacity 1.2s ease;
+    }
+    .js.diving .earth {
+      transform: translateY(40vh) scale(0.55);
+      opacity: 0;
+      transition: transform 1.6s cubic-bezier(.6,0,.85,.35), opacity 1.1s ease 0.4s;
+    }
+    .earth::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(5,5,8,0.85), rgba(5,5,8,0.35) 22%, transparent 38%);
+    }
+    /* Photo is wider than the screen and placed so its horizon (40% down the
+       image) sits 62% down the screen. Everything above the horizon fades out
+       so our own starfield shows through. */
+    .earth-img {
+      --w: max(115vw, 140vh);
+      position: absolute;
+      width: var(--w);
+      max-width: none;
+      height: auto;
+      left: calc(50% - var(--w) / 2);
+      top: calc(62% - var(--w) * 0.2246);
+      -webkit-mask-image: linear-gradient(to bottom, transparent 31%, #000 39.5%);
+      mask-image: linear-gradient(to bottom, transparent 31%, #000 39.5%);
+      filter: saturate(1.1) brightness(0.92);
+      transform-origin: 50% 100%;
+      animation: earthDrift 48s ease-in-out infinite alternate;
+    }
+    @keyframes earthDrift {
+      from { transform: rotate(-0.7deg) scale(1); }
+      to   { transform: rotate(0.7deg) scale(1.04); }
+    }
+
+    .home-content {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 58%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 26px;
+      padding: 0 6vw;
+      text-align: center;
+      transition: opacity 0.8s ease 1s, transform 0.8s ease 1s;
+    }
+    .js.diving .home-content {
+      opacity: 0;
+      transform: scale(1.06);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+    .home-title {
+      font-family: 'Instrument Serif', serif;
+      font-weight: 400;
+      font-size: clamp(2.7rem, 8vw, 5.8rem);
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      text-shadow: 0 0 40px rgba(96,165,250,0.3), 0 2px 24px rgba(0,0,0,0.6);
+    }
+    .home-kicker {
+      display: block;
+      font-style: italic;
+      font-size: clamp(1.25rem, 2.8vw, 2rem);
+      color: var(--ink-2);
+      margin-bottom: 10px;
+      letter-spacing: 0;
+    }
+    .dive-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(147,197,253,0.45);
+      background: rgba(96,165,250,0.14);
+      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px);
+      color: var(--ink);
+      font: 500 15px 'Inter', sans-serif;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      box-shadow: 0 0 40px -8px rgba(96,165,250,0.7), inset 0 0 20px -10px rgba(147,197,253,0.8);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+    .dive-btn:hover {
+      transform: translateY(-2px);
+      background: rgba(96,165,250,0.24);
+      box-shadow: 0 0 60px -6px rgba(96,165,250,0.9), inset 0 0 20px -10px rgba(147,197,253,0.9);
+    }
+    .dive-btn svg { width: 18px; height: 18px; transition: transform 0.2s ease; }
+    .dive-btn:hover svg { transform: translateX(3px); }
+    .tally { font-size: 13px; color: var(--ink-2); letter-spacing: 0.02em; }
+    .tally:empty { display: none; }
+    .earth-credit {
+      position: absolute;
+      right: 16px;
+      bottom: 12px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.45);
+    }
+
+    /* Journey poll: shown on the home page after returning from the universe. */
+    .poll {
+      display: none;
+      padding: 18px 26px 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(12,13,20,0.6);
+      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px);
+    }
+    .poll-open .poll { display: block; animation: fadeUp 0.6s ease both; }
+    .poll-q { font-family: 'Instrument Serif', serif; font-size: 1.45rem; color: var(--ink); margin-bottom: 12px; }
+    .poll-actions { display: flex; gap: 12px; justify-content: center; }
+    .poll-actions:empty { display: none; }
+    .poll-btn {
+      width: 58px;
+      height: 48px;
+      font-size: 22px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .poll-btn:hover { transform: translateY(-2px); border-color: var(--green); background: var(--green-bg); }
+    .poll-btn[data-vote="down"]:hover { border-color: var(--red); background: rgba(248,113,113,0.10); }
+    .poll-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+    /* Go Home panel */
+    #go-home { --c: var(--cyan); }
+    html:not(.js) #go-home { display: none; }
+    .js #go-home.is-open { max-width: 560px; text-align: center; }
+    #go-home .section-label { justify-content: center; }
+    .go-home-copy { color: var(--ink-2); font-size: 15px; line-height: 1.7; margin: -12px 0 28px; }
+    .go-home-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font: 500 14px 'Inter', sans-serif;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { background: var(--cyan); color: #04121A; box-shadow: 0 0 32px -8px var(--cyan); }
+    .btn-primary:hover { box-shadow: 0 0 44px -6px var(--cyan); }
+    .btn-ghost { background: transparent; color: var(--ink); border-color: rgba(255,255,255,0.2); }
+    .btn-ghost:hover { border-color: var(--cyan); }
+
+    @media (max-width: 640px) {
+      .home-content { gap: 22px; }
     }
 
     /* Keyboard focus */
@@ -929,12 +1125,13 @@
 </head>
 <body>
   <!-- Universe home screen -->
-  <div class="universe" id="universe">
+  <div class="universe" id="universe-view">
     <canvas id="sky" aria-hidden="true"></canvas>
 
+    <div class="universe-ui">
     <div class="universe-heading">
-      <h1 class="universe-title"><span class="universe-kicker">The Universe of</span>Aryan Thakur</h1>
-      <p class="universe-hint">Choose a star to explore</p>
+      <p class="universe-title"><span class="universe-kicker">The Universe of</span>Aryan Thakur</p>
+      <p class="universe-hint">Choose a star to explore · Swipe to look around</p>
     </div>
 
     <nav aria-label="Sections">
@@ -943,13 +1140,36 @@
       <button type="button" class="star" data-section="experience" style="--x:15%; --y:70%; --mx:24%; --my:69%; --c:var(--purple); --delay:0.6s"><span class="star-label">Experience</span><span class="star-core"></span></button>
       <button type="button" class="star" data-section="projects"   style="--x:83%; --y:66%; --mx:76%; --my:77%; --c:var(--orange); --delay:0.75s"><span class="star-label">Projects</span><span class="star-core"></span></button>
       <button type="button" class="star" data-section="contact"    style="--x:52%; --y:85%; --mx:50%; --my:84%; --c:var(--red);     --delay:0.9s"><span class="star-label">Contact</span><span class="star-core"></span></button>
+      <button type="button" class="star" data-section="go-home"    style="--x:50%; --y:12%; --mx:50%; --my:7%;  --c:var(--cyan);    --delay:1.05s"><span class="star-label">Go Home</span><span class="star-core"></span></button>
     </nav>
 
     <footer class="universe-footer">
       <p>Aryan Thakur 2026</p>
       <a href="https://github.com/CantStopGreatness" target="_blank" rel="noopener noreferrer" aria-label="GitHub (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></a>
     </footer>
+    </div>
   </div>
+
+  <!-- Earth: the landing page -->
+  <div class="home" id="home">
+    <div class="earth" aria-hidden="true">
+      <img class="earth-img" src="earth.jpg" alt="" width="1920" height="1078" decoding="async" fetchpriority="high" />
+    </div>
+    <div class="home-content">
+      <h1 class="home-title"><span class="home-kicker">Explore the Universe of</span>Aryan Thakur</h1>
+      <div class="poll" id="poll">
+        <p class="poll-q" id="poll-q">Did you enjoy your journey?</p>
+        <div class="poll-actions">
+          <button type="button" class="poll-btn" data-vote="up" aria-label="Yes, I enjoyed it">👍</button>
+          <button type="button" class="poll-btn" data-vote="down" aria-label="No, I didn't enjoy it">👎</button>
+        </div>
+      </div>
+      <button type="button" class="dive-btn" id="dive-in">Dive in<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      <p class="tally" id="tally" aria-live="polite"></p>
+    </div>
+    <p class="earth-credit">Earth from the ISS · NASA</p>
+  </div>
+
   <div class="container">
 
     <!-- Nav -->
@@ -1151,6 +1371,16 @@
       </div>
     </section>
 
+    <!-- Go Home -->
+    <section id="go-home">
+      <h2 class="section-label">Return to Earth?</h2>
+      <p class="go-home-copy">You've seen every star in this universe. Head back home, or keep exploring a little longer.</p>
+      <div class="go-home-actions">
+        <button type="button" class="btn btn-primary" id="take-me-home">Take me home</button>
+        <button type="button" class="btn btn-ghost" id="keep-exploring">Keep exploring</button>
+      </div>
+    </section>
+
     </main>
 
     <!-- Footer -->
@@ -1163,17 +1393,26 @@
   </div>
 
   <script>
-    // Background sky: a few hundred twinkling stars on one canvas. Each star
-    // has a depth; nearer (bigger) stars drift more with the mouse.
+    // Background sky: stars spread over a whole sphere around the viewer and
+    // projected onto the canvas, so swiping (two fingers on a trackpad, or a
+    // drag on a touch screen) turns the view a full 360 degrees. The section
+    // stars and title are page elements, not part of this sky, so they stay
+    // put. Meteors and comets travel along great circles on the same sphere.
     (function () {
       var canvas = document.getElementById('sky');
+      var universe = document.getElementById('universe-view');
       if (!canvas || !canvas.getContext) return;
       var ctx = canvas.getContext('2d');
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var TINTS = ['255,255,255', '255,255,255', '255,255,255', '200,220,255', '255,232,210'];
-      var DRIFT = 18; // px the nearest stars move at the screen edge
-      var stars = [], w = 0, h = 0;
-      var mouseX = 0, mouseY = 0, driftX = 0, driftY = 0;
+      var MAX_PITCH = 1.3;      // rad (~75deg) up or down; sideways is unlimited
+      var stars = [], streaks = [];
+      var w = 0, h = 0, cx = 0, cy = 0, focal = 1;
+      var yaw = 0, pitch = 0, velYaw = 0, velPitch = 0;
+      var mouseX = 0, mouseY = 0, lookX = 0, lookY = 0;
+      var nextMeteor = 0, nextComet = 0, lastT = 0;
+
+      function rand(a, b) { return a + Math.random() * (b - a); }
 
       function resize() {
         var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1184,39 +1423,201 @@
         canvas.style.width = w + 'px';
         canvas.style.height = h + 'px';
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cx = w / 2;
+        cy = h / 2;
+        focal = Math.max(w, h) / 2; // 90deg field of view across the longer side
 
-        var count = Math.min(700, Math.round(w * h / 2600));
+        // Keep roughly the old on-screen density (one star per 2600px^2), so
+        // scale the whole-sphere count by how much of the sphere is visible.
+        var onScreen = Math.min(700, w * h / 2600);
+        var visible = (w / focal) * (h / focal); // steradians, roughly
+        var count = Math.min(4000, Math.round(onScreen * 4 * Math.PI / visible));
+        // Star positions don't depend on screen size, so keep the same sky on
+        // small resizes (e.g. a phone's address bar showing/hiding).
+        if (Math.abs(count - stars.length) < stars.length * 0.25) return;
         stars = [];
         for (var i = 0; i < count; i++) {
-          var depth = Math.random();
+          var z = Math.random() * 2 - 1, a = Math.random() * Math.PI * 2, r = Math.sqrt(1 - z * z);
+          var size = Math.random();
           stars.push({
-            x: Math.random() * (w + DRIFT * 2) - DRIFT,
-            y: Math.random() * (h + DRIFT * 2) - DRIFT,
-            r: 0.3 + depth * depth * 1.4,
+            x: r * Math.cos(a), y: r * Math.sin(a), z: z,
+            r: 0.3 + size * size * 1.4,
             alpha: 0.25 + Math.random() * 0.65,
             speed: 0.4 + Math.random() * 1.8,
             phase: Math.random() * Math.PI * 2,
-            depth: depth,
             tint: TINTS[Math.floor(Math.random() * TINTS.length)]
           });
         }
-        if (reduce) draw(0);
       }
 
-      function draw(t) {
-        driftX += (mouseX - driftX) * 0.04;
-        driftY += (mouseY - driftY) * 0.04;
-        ctx.clearRect(0, 0, w, h);
-        for (var i = 0; i < stars.length; i++) {
-          var s = stars[i];
-          var twinkle = reduce ? 1 : 0.6 + 0.4 * Math.sin(t * 0.001 * s.speed + s.phase);
-          ctx.globalAlpha = s.alpha * twinkle;
-          ctx.fillStyle = 'rgb(' + s.tint + ')';
+      // World direction -> camera space, for the current view. Returns null
+      // when the point is behind the viewer.
+      var cyw, syw, cpt, spt;
+      function setView() {
+        var vy = yaw - lookX * 0.04, vp = pitch - lookY * 0.03; // sky drifts away from the mouse
+        cyw = Math.cos(vy); syw = Math.sin(vy); cpt = Math.cos(vp); spt = Math.sin(vp);
+      }
+      function project(x, y, z, out) {
+        var x1 = x * cyw + z * syw, z1 = -x * syw + z * cyw;   // turn left/right
+        var y2 = y * cpt - z1 * spt, z2 = y * spt + z1 * cpt;  // tilt up/down
+        if (z2 <= 0.05) return false;
+        out.x = cx + focal * x1 / z2;
+        out.y = cy - focal * y2 / z2;
+        return true;
+      }
+      // Screen point -> world direction (inverse of project).
+      function unproject(sx, sy) {
+        var x = (sx - cx) / focal, y = -(sy - cy) / focal, z = 1;
+        var n = Math.sqrt(x * x + y * y + 1);
+        x /= n; y /= n; z /= n;
+        var y1 = y * cpt + z * spt, z1 = -y * spt + z * cpt;
+        return [x * cyw - z1 * syw, y1, x * syw + z1 * cyw];
+      }
+
+      // A meteor or comet: moves from direction d0 along the great circle
+      // toward d1. Its position at angle a is d0*cos(a) + b*sin(a).
+      function spawn(kind) {
+        var sx = rand(0.1, 0.9) * w, sy = rand(0.05, kind === 'meteor' ? 0.55 : 0.8) * h;
+        var dir = kind === 'meteor'
+          ? (Math.random() < 0.5 ? rand(0.35, 1.2) : Math.PI - rand(0.35, 1.2)) // mostly downward
+          : rand(0, Math.PI * 2);
+        var d0 = unproject(sx, sy);
+        var d1 = unproject(sx + Math.cos(dir) * 50, sy + Math.sin(dir) * 50);
+        var k = [d0[1] * d1[2] - d0[2] * d1[1], d0[2] * d1[0] - d0[0] * d1[2], d0[0] * d1[1] - d0[1] * d1[0]];
+        var kn = Math.sqrt(k[0] * k[0] + k[1] * k[1] + k[2] * k[2]) || 1;
+        k = [k[0] / kn, k[1] / kn, k[2] / kn];
+        var b = [k[1] * d0[2] - k[2] * d0[1], k[2] * d0[0] - k[0] * d0[2], k[0] * d0[1] - k[1] * d0[0]];
+        var comet = kind === 'comet';
+        streaks.push({
+          d0: d0, b: b, angle: 0, age: 0,
+          speed: comet ? rand(0.035, 0.06) : rand(1.1, 1.7),  // rad/s
+          tail: comet ? rand(0.4, 0.55) : rand(0.16, 0.28),   // rad
+          life: comet ? rand(12, 18) : rand(0.5, 0.9),        // s
+          fadeIn: comet ? 1.5 : 0.1, fadeOut: comet ? 2.5 : 0.3,
+          width: comet ? 5 : 2.8,
+          head: comet ? 7 : 1.8,
+          tint: comet ? '190,225,255' : '255,255,255'
+        });
+      }
+
+      var pa = {}, pb = {};
+      function drawStreak(s) {
+        var fade = Math.min(1, s.age / s.fadeIn, (s.life - s.age) / s.fadeOut);
+        if (fade <= 0) return;
+        var STEPS = 12;
+        ctx.lineCap = 'round';
+        for (var i = 0; i < STEPS; i++) {
+          var a0 = s.angle - s.tail * i / STEPS, a1 = s.angle - s.tail * (i + 1) / STEPS;
+          var c0 = Math.cos(a0), s0 = Math.sin(a0), c1 = Math.cos(a1), s1 = Math.sin(a1);
+          if (a1 < 0) break; // tail hasn't grown past the start point yet
+          if (!project(s.d0[0] * c0 + s.b[0] * s0, s.d0[1] * c0 + s.b[1] * s0, s.d0[2] * c0 + s.b[2] * s0, pa)) continue;
+          if (!project(s.d0[0] * c1 + s.b[0] * s1, s.d0[1] * c1 + s.b[1] * s1, s.d0[2] * c1 + s.b[2] * s1, pb)) continue;
+          var k = 1 - i / STEPS;
+          ctx.globalAlpha = fade * k * k * 0.9;
+          ctx.strokeStyle = 'rgb(' + s.tint + ')';
+          ctx.lineWidth = s.width * k + 0.3;
           ctx.beginPath();
-          ctx.arc(s.x - driftX * s.depth * DRIFT, s.y - driftY * s.depth * DRIFT, s.r, 0, Math.PI * 2);
+          ctx.moveTo(pa.x, pa.y);
+          ctx.lineTo(pb.x, pb.y);
+          ctx.stroke();
+        }
+        if (s.head && project(s.d0[0] * Math.cos(s.angle) + s.b[0] * Math.sin(s.angle),
+                              s.d0[1] * Math.cos(s.angle) + s.b[1] * Math.sin(s.angle),
+                              s.d0[2] * Math.cos(s.angle) + s.b[2] * Math.sin(s.angle), pa)) {
+          var g = ctx.createRadialGradient(pa.x, pa.y, 0, pa.x, pa.y, s.head * 6);
+          g.addColorStop(0, 'rgba(255,255,255,1)');
+          g.addColorStop(0.12, 'rgba(' + s.tint + ',0.8)');
+          g.addColorStop(0.35, 'rgba(' + s.tint + ',0.18)');
+          g.addColorStop(1, 'rgba(' + s.tint + ',0)');
+          ctx.globalAlpha = fade;
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(pa.x, pa.y, s.head * 6, 0, Math.PI * 2);
           ctx.fill();
         }
+      }
+
+      var pt = {};
+      function draw(t) {
+        var dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0;
+        lastT = t;
+
+        // Glide after a touch swipe is released.
+        if (!dragging && !reduce) {
+          yaw += velYaw; pitch += velPitch;
+          velYaw *= 0.92; velPitch *= 0.92;
+        }
+        pitch = Math.max(-MAX_PITCH, Math.min(MAX_PITCH, pitch));
+        lookX += (mouseX - lookX) * 0.04;
+        lookY += (mouseY - lookY) * 0.04;
+        setView();
+
+        // Warp flight (Dive in / Take me home): the normal sky fades out
+        // while streaks rush past, then fades back in. 0 = no warp, 1 = peak.
+        var warpAmt = 0;
+        if (warp) {
+          if (warp.start === null) warp.start = t;
+          var wp = (t - warp.start) / warp.ms;
+          if (wp >= 1) warp = null; else warpAmt = Math.sin(Math.PI * wp);
+        }
+        var skyAlpha = 1 - Math.min(1, warpAmt * 1.6);
+
+        ctx.clearRect(0, 0, w, h);
+        for (var i = 0; skyAlpha > 0 && i < stars.length; i++) {
+          var s = stars[i];
+          if (!project(s.x, s.y, s.z, pt)) continue;
+          if (pt.x < -4 || pt.x > w + 4 || pt.y < -4 || pt.y > h + 4) continue;
+          var twinkle = reduce ? 1 : 0.6 + 0.4 * Math.sin(t * 0.001 * s.speed + s.phase);
+          ctx.globalAlpha = s.alpha * twinkle * skyAlpha;
+          ctx.fillStyle = 'rgb(' + s.tint + ')';
+          ctx.beginPath();
+          ctx.arc(pt.x, pt.y, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        if (warpAmt > 0) drawWarp(warpAmt, dt);
+
+        if (!reduce && warpAmt < 0.1) {
+          if (!nextMeteor) { nextMeteor = t + rand(800, 2000); nextComet = t + rand(3000, 6000); }
+          if (t >= nextMeteor) { spawn('meteor'); nextMeteor = t + rand(1000, 3500); }
+          if (t >= nextComet) { spawn('comet'); nextComet = t + rand(8000, 15000); }
+          for (var j = streaks.length - 1; j >= 0; j--) {
+            var st = streaks[j];
+            st.age += dt;
+            st.angle += st.speed * dt;
+            if (st.age >= st.life) { streaks.splice(j, 1); continue; }
+            drawStreak(st);
+          }
+        }
         ctx.globalAlpha = 1;
+      }
+
+      // Warp particles: a classic starfield flying toward (dir 1) or away
+      // from (dir -1) the viewer. z is depth, 1 = far, near 0 = passing by.
+      var warp = null, particles = [];
+      function drawWarp(amt, dt) {
+        if (!particles.length) {
+          for (var i = 0; i < 450; i++) particles.push({ x: rand(-1, 1), y: rand(-1, 1), z: rand(0.05, 1) });
+        }
+        var dir = warp ? warp.dir : 1;
+        var speed = amt * amt * 2.4; // depth units per second
+        var scale = focal * 0.6;
+        ctx.strokeStyle = 'rgb(205,225,255)';
+        ctx.lineCap = 'round';
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          p.z -= dir * speed * dt;
+          if (p.z < 0.04) { p.z += 0.96; p.x = rand(-1, 1); p.y = rand(-1, 1); }
+          if (p.z > 1) { p.z -= 0.96; p.x = rand(-1, 1); p.y = rand(-1, 1); }
+          // The tail points back to where the particle just came from.
+          var tz = Math.max(0.03, p.z + dir * (speed * 0.07 + 0.004));
+          ctx.globalAlpha = amt * Math.min(1, (1 - p.z) * 1.5);
+          ctx.lineWidth = Math.min(2.6, 0.3 + 0.08 / p.z);
+          ctx.beginPath();
+          ctx.moveTo(cx + p.x / p.z * scale, cy + p.y / p.z * scale);
+          ctx.lineTo(cx + p.x / tz * scale, cy + p.y / tz * scale);
+          ctx.stroke();
+        }
       }
 
       var running = false;
@@ -1228,15 +1629,78 @@
       window.sky = {
         pause: function () { running = false; },
         resume: function () {
-          if (running || reduce) return;
+          if (running) return;
           running = true;
+          lastT = 0;
           requestAnimationFrame(frame);
+        },
+        // dir 1 flies out into space, -1 flies back toward Earth.
+        warp: function (dir, ms) {
+          if (reduce) return;
+          warp = { dir: dir, ms: ms, start: null };
+          window.sky.resume();
         }
       };
+
+      // Turning the view. Swipes drag the sky with your fingers: content
+      // moves the way the fingers move, like scrolling a map.
+      function turn(dx, dy) {
+        yaw += dx / focal;
+        pitch += dy / focal;
+      }
+
+      // Trackpad two-finger swipe (and mouse wheel) arrive as wheel events.
+      universe.addEventListener('wheel', function (e) {
+        if (e.ctrlKey) return; // pinch-zoom on a trackpad; leave it alone
+        e.preventDefault();
+        var unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? h : 1;
+        velYaw = velPitch = 0; // the OS already adds trackpad momentum
+        turn(-e.deltaX * unit, -e.deltaY * unit);
+      }, { passive: false });
+
+      // Touch screens: drag with one or two fingers.
+      var touches = {}, dragging = false, lastX = 0, lastY = 0, moved = 0;
+      function centroid() {
+        var x = 0, y = 0, n = 0;
+        for (var id in touches) { x += touches[id].x; y += touches[id].y; n++; }
+        return n ? { x: x / n, y: y / n, n: n } : null;
+      }
+      universe.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse') return;
+        touches[e.pointerId] = { x: e.clientX, y: e.clientY };
+        var c = centroid();
+        lastX = c.x; lastY = c.y;
+        if (c.n === 1) moved = 0;
+        dragging = true;
+        velYaw = velPitch = 0;
+      });
+      universe.addEventListener('pointermove', function (e) {
+        if (!touches[e.pointerId]) return;
+        touches[e.pointerId] = { x: e.clientX, y: e.clientY };
+        var c = centroid();
+        var dx = c.x - lastX, dy = c.y - lastY;
+        lastX = c.x; lastY = c.y;
+        moved += Math.abs(dx) + Math.abs(dy);
+        turn(dx, dy);
+        velYaw = dx / focal; velPitch = dy / focal;
+      });
+      function release(e) {
+        if (!touches[e.pointerId]) return;
+        delete touches[e.pointerId];
+        var c = centroid();
+        if (c) { lastX = c.x; lastY = c.y; } else { dragging = false; }
+      }
+      universe.addEventListener('pointerup', release);
+      universe.addEventListener('pointercancel', release);
+      // A drag that started on a section star shouldn't also open it.
+      universe.addEventListener('click', function (e) {
+        if (moved > 10) { e.stopPropagation(); e.preventDefault(); moved = 0; }
+      }, true);
 
       window.addEventListener('resize', resize);
       if (!reduce) {
         window.addEventListener('pointermove', function (e) {
+          if (e.pointerType !== 'mouse') return;
           mouseX = e.clientX / w * 2 - 1;
           mouseY = e.clientY / h * 2 - 1;
         });
@@ -1402,20 +1866,27 @@
       document.querySelectorAll('[data-carousel]').forEach(setup);
     }());
 
-    // Stars -> sections. Clicking a star flies into it and opens that section
-    // as a panel; "Exit star", Esc or the browser's back button fly back out.
-    // Each open star gets its own #hash, so links like /#projects work.
+    // Views and history. The site has three kinds of view, each with its own
+    // address: the Earth home page (/), the universe (/#universe), and an open
+    // star (/#projects etc.). Moving between them animates:
+    //   home -> universe: "Dive in", a 2s warp flight out into space
+    //   universe -> star: the sky zooms into the star and its panel opens
+    //   star -> home:     "Take me home", a 2s warp flight back to Earth
+    // Links straight to /#projects skip the flight and open that star.
     (function () {
       var root = document.documentElement;
-      var universe = document.getElementById('universe');
+      var universe = document.getElementById('universe-view');
       var main = document.querySelector('main');
       var exitBtn = document.getElementById('exit-star');
-      var FLIGHT = 900; // ms, matches the .universe transition
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var FLIGHT = 900;                // ms, star zoom; matches the .universe transition
+      var WARP = reduce ? 400 : 2000;  // ms, Earth <-> universe flight
       var stars = {};
       universe.querySelectorAll('.star').forEach(function (star) {
         stars[star.getAttribute('data-section')] = star;
       });
-      var current = null, lastStar = null, closeTimer = null, pauseTimer = null;
+      var view = null, current = null, lastStar = null;
+      var closeTimer = null, pauseTimer = null, viewTimer = null;
 
       function open(id) {
         var section = document.getElementById(id);
@@ -1426,8 +1897,14 @@
         if (lastStar) lastStar.classList.remove('is-target');
 
         var rect = star.getBoundingClientRect();
-        root.style.setProperty('--ox', rect.left + rect.width / 2 + 'px');
-        root.style.setProperty('--oy', rect.top + rect.height / 2 + 'px');
+        var ox = rect.left + rect.width / 2, oy = rect.top + rect.height / 2;
+        var fx = ox / window.innerWidth, fy = oy / window.innerHeight;
+        // After sliding the star to the centre, each edge of the scaled sky
+        // must stay off-screen: scale >= 0.5 / (star's distance from that edge).
+        var zoom = 0.5 / Math.max(0.02, Math.min(fx, 1 - fx, fy, 1 - fy));
+        root.style.setProperty('--ox', ox + 'px');
+        root.style.setProperty('--oy', oy + 'px');
+        root.style.setProperty('--zoom', Math.max(3.6, zoom * 1.05));
         root.style.setProperty('--star', getComputedStyle(star).getPropertyValue('--c'));
 
         star.classList.add('is-target');
@@ -1445,7 +1922,7 @@
         pauseTimer = setTimeout(function () { window.sky && window.sky.pause(); }, FLIGHT);
       }
 
-      function close() {
+      function close(keepFocus) {
         if (!current) return;
         var section = current, star = lastStar;
         current = null;
@@ -1453,51 +1930,116 @@
         window.sky && window.sky.resume();
         root.classList.remove('in-star');
         universe.inert = false;
-        star.focus({ preventScroll: true });
+        if (!keepFocus) star.focus({ preventScroll: true });
         closeTimer = setTimeout(function () {
           section.classList.remove('is-open');
           star.classList.remove('is-target');
         }, FLIGHT);
       }
 
-      function idFromHash() {
+      // Earth -> universe.
+      function dive(animate) {
+        root.classList.add('diving');
+        if (!animate) { root.classList.remove('at-home'); return; }
+        window.sky && window.sky.warp(1, WARP);
+        return new Promise(function (resolve) {
+          viewTimer = setTimeout(function () {
+            root.classList.remove('at-home'); // keep .diving: Earth stays "fallen away" until we return
+            resolve();
+          }, WARP);
+        });
+      }
+
+      // Universe -> Earth.
+      function flyHome(animate, fromStar) {
+        var land = function () {
+          window.sky && window.sky.warp(-1, WARP);
+          root.classList.add('at-home');
+          // Next frame, let Earth rise back into view.
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { root.classList.remove('diving'); });
+          });
+          viewTimer = setTimeout(function () { journey.arrivedHome(); }, WARP);
+        };
+        if (!animate) { root.classList.add('at-home'); root.classList.remove('diving'); return; }
+        if (fromStar) viewTimer = setTimeout(land, 450); else land();
+      }
+
+      function go(target, animate) {
+        if (target === view) return;
+        var prev = view;
+        view = target;
+        clearTimeout(viewTimer);
+        if (target === 'home') {
+          var fromStar = !!current;
+          close(true);
+          flyHome(animate && prev !== null, fromStar);
+          return;
+        }
+        if (prev === null || prev === 'home') {
+          var arrived = dive(animate);
+          var enter = function () {
+            if (target === 'universe') stars.about.focus({ preventScroll: true });
+            else open(target);
+          };
+          if (arrived) arrived.then(function () { if (view === target) enter(); }); else enter();
+          return;
+        }
+        if (target === 'universe') close(); else open(target);
+      }
+
+      function viewFromHash() {
         var id = location.hash.slice(1);
-        return Object.prototype.hasOwnProperty.call(stars, id) ? id : null;
+        if (id === 'universe') return 'universe';
+        return Object.prototype.hasOwnProperty.call(stars, id) ? id : 'home';
       }
 
       function exit() {
-        if (history.state && history.state.star) {
-          history.back(); // popstate closes the panel
+        // Only step back if we added this star's entry ourselves; on a deep
+        // link there's nothing of ours behind it.
+        if (history.state && history.state.pushed) {
+          history.back(); // popstate goes to the universe entry behind this star
         } else {
-          history.replaceState(null, '', location.pathname + location.search);
-          close();
+          history.replaceState({ view: 'universe' }, '', '#universe');
+          go('universe', true);
         }
       }
 
+      document.getElementById('dive-in').addEventListener('click', function () {
+        history.pushState({ view: 'universe', pushed: true }, '', '#universe');
+        go('universe', true);
+      });
       universe.addEventListener('click', function (e) {
         var star = e.target.closest('.star');
         if (!star) return;
         var id = star.getAttribute('data-section');
-        history.pushState({ star: id }, '', '#' + id);
-        open(id);
+        history.pushState({ view: id, pushed: true }, '', '#' + id);
+        go(id, true);
       });
       exitBtn.addEventListener('click', exit);
+      document.getElementById('keep-exploring').addEventListener('click', exit);
+      document.getElementById('take-me-home').addEventListener('click', function () {
+        // Replace the Go Home entry, so Back from Earth returns to the universe.
+        history.replaceState({ view: 'home' }, '', location.pathname + location.search);
+        go('home', true);
+      });
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape' && current) exit();
       });
-      window.addEventListener('popstate', function () {
-        var id = idFromHash();
-        if (id) open(id); else close();
-      });
+      window.addEventListener('popstate', function () { go(viewFromHash(), true); });
 
-      // Arriving on a link like /#projects: open that star straight away, and
-      // put the universe behind it in history so Back/Exit lands there.
-      var initial = idFromHash();
-      if (initial) {
-        history.replaceState(null, '', location.pathname + location.search);
-        history.pushState({ star: initial }, '', '#' + initial);
+      // First load. Links into the universe (/#projects) open straight there.
+      // No history entries are added for Earth behind them: Chrome's Back
+      // button skips entries a page adds without a click, so Exit and the Go
+      // Home star are the way back instead.
+      var initial = viewFromHash();
+      if (initial === 'home') {
+        history.replaceState({ view: 'home' }, '', location.pathname + location.search);
+        go('home', false);
+      } else {
+        history.replaceState({ view: initial }, '', location.hash);
         root.classList.add('no-anim');
-        open(initial);
+        go(initial, false);
         // The browser jumps to the #id element after load; undo that so the
         // panel starts at the top of its own scroll area.
         window.addEventListener('load', function () { main.scrollTop = 0; });
@@ -1505,6 +2047,62 @@
           requestAnimationFrame(function () { root.classList.remove('no-anim'); });
         });
       }
+    }());
+
+    // Journey ratings: thumbs up/down totals shared by every visitor, stored
+    // by /api/journey. Totals show on the home page; the question appears
+    // after returning home, once per browser.
+    var journey = (function () {
+      var home = document.getElementById('home');
+      var tally = document.getElementById('tally');
+      var question = document.getElementById('poll-q');
+      var buttons = document.querySelectorAll('.poll-btn');
+      var KEY = 'journey-vote';
+
+      function voted() {
+        try { return !!localStorage.getItem(KEY); } catch (e) { return false; }
+      }
+      function show(totals) {
+        if (!totals || typeof totals.up !== 'number') return;
+        tally.textContent = '👍 ' + totals.up + ' · 👎 ' + totals.down + ' · how travellers rated their journey';
+      }
+      function request(options) {
+        return fetch('/api/journey', options).then(function (res) {
+          if (!res.ok) throw new Error(res.status);
+          return res.json();
+        });
+      }
+
+      request({ cache: 'no-store' }).then(show).catch(function () {}); // no totals: tally stays hidden
+
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          buttons.forEach(function (b) { b.disabled = true; });
+          request({
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ vote: btn.getAttribute('data-vote') })
+          }).then(function (totals) {
+            try { localStorage.setItem(KEY, btn.getAttribute('data-vote')); } catch (e) {}
+            show(totals);
+            question.textContent = 'Thanks for travelling! 🚀';
+            setTimeout(function () { home.classList.remove('poll-open'); }, 2500);
+          }).catch(function () {
+            question.textContent = "Couldn't save your vote. Try again?";
+            buttons.forEach(function (b) { b.disabled = false; });
+          });
+        });
+      });
+
+      return {
+        arrivedHome: function () {
+          if (voted()) { document.getElementById('dive-in').focus({ preventScroll: true }); return; }
+          question.textContent = 'Did you enjoy your journey?';
+          buttons.forEach(function (b) { b.disabled = false; });
+          home.classList.add('poll-open');
+          buttons[0].focus({ preventScroll: true });
+        }
+      };
     }());
   </script>
 </body>
