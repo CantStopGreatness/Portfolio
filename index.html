@@ -28,6 +28,7 @@
       --orange-bg: rgba(251,146,60,0.10);
       --teal:      #2DD4BF;
       --teal-bg:   rgba(45,212,191,0.10);
+      --red:       #F87171;
     }
 
     html { scroll-behavior: smooth; }
@@ -686,7 +687,7 @@
     #education  { --c: var(--blue); }
     #experience { --c: var(--purple); }
     #projects   { --c: var(--orange); }
-    #contact    { --c: var(--teal); }
+    #contact    { --c: var(--red); }
     .js .container { max-width: none; padding: 0; position: static; }
     .js .container > nav,
     .js .container > footer { display: none; }
@@ -695,7 +696,10 @@
       inset: 0;
       overflow-y: auto;
       overscroll-behavior: contain;
-      padding: 96px 24px 64px;
+      padding: 88px 24px;
+      /* Panel is centred with margin: auto; a taller panel just scrolls. */
+      display: flex;
+      flex-direction: column;
       opacity: 0;
       visibility: hidden;
       transition: opacity 0.35s ease, visibility 0s linear 0.35s;
@@ -708,8 +712,10 @@
     .js section { display: none; }
     .js section.is-open {
       display: block;
+      width: 100%;
       max-width: 960px;
-      margin: 0 auto;
+      flex-shrink: 0;
+      margin: auto;
       padding: 48px;
       border: 1px solid rgba(255,255,255,0.08);
       border-top: 2px solid var(--c);
@@ -893,7 +899,7 @@
 
     /* Phones: portrait sky, so stars move above and below the title. */
     @media (max-width: 640px) {
-      .js main { padding: 76px 12px 40px; }
+      .js main { padding: 72px 12px; }
       .js section.is-open { padding: 28px 20px; border-radius: 18px; }
       .js .exit-star { top: 16px; left: 16px; }
       .star { left: var(--mx); top: var(--my); }
@@ -936,7 +942,7 @@
       <button type="button" class="star" data-section="education"  style="--x:77%; --y:22%; --mx:74%; --my:25%; --c:var(--blue);   --delay:0.45s"><span class="star-label">Education</span><span class="star-core"></span></button>
       <button type="button" class="star" data-section="experience" style="--x:15%; --y:70%; --mx:24%; --my:69%; --c:var(--purple); --delay:0.6s"><span class="star-label">Experience</span><span class="star-core"></span></button>
       <button type="button" class="star" data-section="projects"   style="--x:83%; --y:66%; --mx:76%; --my:77%; --c:var(--orange); --delay:0.75s"><span class="star-label">Projects</span><span class="star-core"></span></button>
-      <button type="button" class="star" data-section="contact"    style="--x:52%; --y:85%; --mx:50%; --my:84%; --c:var(--teal);   --delay:0.9s"><span class="star-label">Contact</span><span class="star-core"></span></button>
+      <button type="button" class="star" data-section="contact"    style="--x:52%; --y:85%; --mx:50%; --my:84%; --c:var(--red);     --delay:0.9s"><span class="star-label">Contact</span><span class="star-core"></span></button>
     </nav>
 
     <footer class="universe-footer">
@@ -1492,6 +1498,9 @@
         history.pushState({ star: initial }, '', '#' + initial);
         root.classList.add('no-anim');
         open(initial);
+        // The browser jumps to the #id element after load; undo that so the
+        // panel starts at the top of its own scroll area.
+        window.addEventListener('load', function () { main.scrollTop = 0; });
         requestAnimationFrame(function () {
           requestAnimationFrame(function () { root.classList.remove('no-anim'); });
         });
