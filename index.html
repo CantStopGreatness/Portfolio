@@ -390,6 +390,9 @@
     .project.courtiq::before {
       background: linear-gradient(90deg, var(--orange), var(--teal));
     }
+    .project.vigil::before {
+      background: linear-gradient(90deg, var(--green), var(--blue));
+    }
     .project:hover {
       box-shadow: 0 8px 40px rgba(0,0,0,0.4);
       border-color: #3A3A3A;
@@ -439,6 +442,9 @@
     .courtiq .project-link {
       background: linear-gradient(135deg, var(--orange), var(--teal));
     }
+    .vigil .project-link {
+      background: linear-gradient(135deg, var(--green), var(--blue));
+    }
     .project-link:hover { opacity: 0.85; }
 
     .project-desc {
@@ -470,6 +476,12 @@
     .courtiq .stack-tag:nth-child(3) { color: var(--blue);   background: var(--blue-bg); }
     .courtiq .stack-tag:nth-child(4) { color: var(--teal);   background: var(--teal-bg); }
     .courtiq .stack-tag:nth-child(5) { color: var(--green);  background: var(--green-bg); }
+
+    .vigil .stack-tag:nth-child(1) { color: var(--green);  background: var(--green-bg); }
+    .vigil .stack-tag:nth-child(2) { color: var(--blue);   background: var(--blue-bg); }
+    .vigil .stack-tag:nth-child(3) { color: var(--teal);   background: var(--teal-bg); }
+    .vigil .stack-tag:nth-child(4) { color: var(--purple); background: var(--purple-bg); }
+    .vigil .stack-tag:nth-child(5) { color: var(--orange); background: var(--orange-bg); }
 
     /* Education */
     .education-header-row {
@@ -762,6 +774,25 @@
       <h2 class="section-label">Projects</h2>
 
       <div class="projects-grid carousel" data-carousel data-item-label="Project" aria-label="Projects">
+      <div class="project vigil">
+        <div class="project-header">
+          <div class="project-meta">
+            <h3 class="project-name">Vigil</h3>
+          </div>
+          <a href="https://vigil-psi-liard.vercel.app" target="_blank" rel="noopener noreferrer" class="project-link">Visit Vigil<span class="sr-only"> (opens in a new tab)</span></a>
+        </div>
+        <p class="project-desc">
+          A website security posture scanner that checks headers, TLS, cookies, exposed files, known CVEs and email-spoofing protection in seconds, then grades the site A–F and exports a client-ready PDF or Word report with a plain-English fix for every finding.
+        </p>
+        <div class="project-stack">
+          <span class="stack-tag">Python</span>
+          <span class="stack-tag">FastAPI</span>
+          <span class="stack-tag">httpx</span>
+          <span class="stack-tag">NVD API</span>
+          <span class="stack-tag">Vercel</span>
+        </div>
+      </div>
+
       <div class="project waive">
         <div class="project-header">
           <div class="project-meta">
