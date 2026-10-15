@@ -801,8 +801,9 @@
       opacity: 0;
       visibility: hidden;
       transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+      pointer-events: none; /* never catches clicks once Earth is left, even mid-fade */
     }
-    .js.at-home .home { opacity: 1; visibility: visible; transition: opacity 0.8s ease, visibility 0s; }
+    .js.at-home .home { opacity: 1; visibility: visible; pointer-events: auto; transition: opacity 0.8s ease, visibility 0s; }
 
     /* Rising back into view (returning home) eases out; falling away
        (.diving, on Dive in) eases in. The class stays on while away. */
@@ -902,8 +903,10 @@
       cursor: pointer;
     }
     /* Welcome title types itself out; Dive in and the tally follow it. */
-    .tw { visibility: hidden; }
-    .tw.on { visibility: visible; }
+    /* Opacity, not visibility: a child set to visibility: visible would stay
+       clickable even after the hidden Earth layer around it is gone. */
+    .tw { opacity: 0; }
+    .tw.on { opacity: 1; }
     .tw.caret { position: relative; }
     .tw.caret::after {
       content: '';
