@@ -10,7 +10,7 @@
     document.documentElement.classList.add('at-home', 'diving');
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,100..125,300..600;1,100..125,300..600&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -34,19 +34,24 @@
       --teal-bg:   rgba(45,212,191,0.10);
       --red:       #F87171;
       --cyan:      #22D3EE;
+      /* Type: one variable family. Extended width (125) is the "hardware"
+         voice for display, headings, labels and buttons; normal width reads. */
+      --font: 'Archivo', system-ui, sans-serif;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: var(--font);
       background: var(--bg);
       color: var(--ink);
-      font-size: 15px;
-      line-height: 1.6;
+      font-size: 16px;
+      line-height: 1.65;
+      letter-spacing: 0.005em;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
     }
+    button { font: inherit; }
 
 
     .container {
@@ -64,8 +69,10 @@
       justify-content: space-between;
     }
     .nav-name {
-      font-family: 'Instrument Serif', serif;
-      font-size: 18px;
+      font-stretch: 125%;
+      font-size: 14px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       color: var(--ink);
       text-decoration: none;
     }
@@ -104,13 +111,14 @@
     }
 
     .section-label {
-      font-family: 'Instrument Serif', serif;
-      font-size: clamp(1.65rem, 3vw, 2.15rem);
-      letter-spacing: -0.01em;
+      font-stretch: 125%;
+      font-size: clamp(1.3rem, 2.2vw, 1.65rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
       color: var(--ink);
       font-weight: 400;
       margin-bottom: 32px;
-      line-height: 1;
+      line-height: 1.1;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -157,13 +165,12 @@
       display: block;
     }
     .about-lead {
-      font-family: 'Instrument Serif', serif;
-      font-size: clamp(1.9rem, 4vw, 2.7rem);
-      line-height: 1.08;
-      letter-spacing: -0.02em;
+      font-size: clamp(1.6rem, 3.2vw, 2.25rem);
+      line-height: 1.2;
+      letter-spacing: -0.01em;
       max-width: 620px;
       margin-bottom: 22px;
-      font-weight: 400;
+      font-weight: 300;
     }
     .about-lead em {
       font-style: italic;
@@ -179,6 +186,7 @@
       border-left: 1px solid var(--rule);
     }
     .about-panel-label {
+      font-stretch: 125%;
       color: var(--ink-3);
       font-size: 11px;
       font-weight: 500;
@@ -215,12 +223,14 @@
       margin-bottom: 2px;
     }
     .experience-company {
-      font-family: 'Instrument Serif', serif;
-      font-size: 20px;
-      font-weight: 400;
+      font-stretch: 112%;
+      font-size: 19px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
       color: var(--ink);
     }
     .experience-dates {
+      font-variant-numeric: tabular-nums;
       font-size: 12px;
       color: var(--ink-3);
       letter-spacing: 0.02em;
@@ -272,12 +282,14 @@
       gap: 10px;
     }
     .project-name {
-      font-family: 'Instrument Serif', serif;
-      font-size: 22px;
-      font-weight: 400;
+      font-stretch: 112%;
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
       color: var(--ink);
     }
     .project-badge {
+      font-stretch: 125%;
       font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -287,13 +299,15 @@
       font-weight: 500;
     }
     .project-link {
-      font-size: 13px;
+      font: 500 11px/1 var(--font);
+      font-stretch: 125%;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       color: var(--bg);
       background: var(--ink);
       border: 1px solid var(--ink);
       text-decoration: none;
-      padding: 8px 16px;
-      font-weight: 500;
+      padding: 12px 18px;
       transition: background 0.15s, color 0.15s;
       white-space: nowrap;
     }
@@ -344,6 +358,7 @@
       border-top: 1px solid var(--rule);
     }
     .contact-label {
+      font-stretch: 125%;
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -443,15 +458,15 @@
     .carousel-btn {
       width: 44px;
       height: 44px;
-      border: 1px solid var(--rule);
+      border: 1px solid rgba(240,240,238,0.18);
       background: transparent;
       color: var(--ink);
       cursor: pointer;
       display: grid;
       place-items: center;
-      transition: border-color 0.15s, color 0.15s;
+      transition: color 0.2s;
     }
-    .carousel-btn:hover { border-color: var(--c, var(--ink)); color: var(--c, var(--ink)); }
+    .carousel-btn:hover, .carousel-btn:focus-visible { color: var(--c, var(--ink)); }
     .carousel-btn svg { width: 18px; height: 18px; }
 
     /* Responsive */
@@ -582,16 +597,18 @@
       top: 24px;
       left: 24px;
       z-index: 2;
-      padding: 9px 16px 9px 12px;
-      border: 1px solid var(--rule);
+      padding: 12px 18px 12px 14px;
+      border: 1px solid rgba(240,240,238,0.18);
       background: #0B0C12;
       color: var(--ink);
-      font: 500 13px 'Inter', sans-serif;
-      letter-spacing: 0.02em;
+      font: 500 11px/1 var(--font);
+      font-stretch: 125%;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: border-color 0.2s, color 0.2s;
+      transition: color 0.2s;
     }
-    .js .exit-star:hover { border-color: var(--star, var(--ink-2)); color: var(--star, var(--ink)); }
+    .js .exit-star:hover, .js .exit-star:focus-visible { color: var(--star, var(--ink)); }
     .exit-star svg { width: 16px; height: 16px; }
     .js body { overflow: hidden; }
     .js body::before { display: none; }
@@ -614,21 +631,26 @@
       animation: fadeUp 1.2s ease backwards;
     }
     .universe-title {
-      font-family: 'Instrument Serif', serif;
-      font-weight: 400;
-      font-size: clamp(3rem, 9vw, 6.5rem);
-      line-height: 1;
-      letter-spacing: -0.02em;
+      font-stretch: 125%;
+      font-weight: 300;
+      font-size: clamp(2.4rem, 6.6vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-wrap: balance;
       color: var(--ink);
       text-shadow: 0 2px 18px rgba(5,5,8,0.9);
     }
     .universe-kicker {
       display: block;
       font-style: italic;
-      font-size: clamp(1.3rem, 3vw, 2.1rem);
+      font-stretch: 100%;
+      font-weight: 300;
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
       color: var(--ink-2);
-      margin-bottom: 8px;
-      letter-spacing: 0;
+      margin-bottom: 14px;
+      letter-spacing: 0.01em;
+      text-transform: none;
     }
     .universe-hint {
       margin-top: 22px;
@@ -694,6 +716,7 @@
       animation-delay: var(--delay, 0s);
     }
     .star-label {
+      font-stretch: 125%;
       position: absolute;
       left: 50%;
       bottom: calc(100% + 4px);
@@ -833,7 +856,8 @@
       gap: 26px;
       padding: 0 6vw;
       text-align: center;
-      transition: opacity 0.8s ease 1s, transform 0.8s ease 1s;
+      /* Quick: the typewriter does the reveal, so the box itself just appears. */
+      transition: opacity 0.3s ease, transform 0.3s ease;
     }
     .js.diving .home-content {
       opacity: 0;
@@ -841,38 +865,64 @@
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
     .home-title {
-      font-family: 'Instrument Serif', serif;
-      font-weight: 400;
-      font-size: clamp(2.7rem, 8vw, 5.8rem);
-      line-height: 1;
-      letter-spacing: -0.02em;
+      font-stretch: 125%;
+      font-weight: 300;
+      font-size: clamp(2.4rem, 6.8vw, 5.2rem);
+      line-height: 0.98;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      text-wrap: balance;
       color: var(--ink);
       text-shadow: 0 2px 24px rgba(0,0,0,0.6);
     }
     .home-kicker {
       display: block;
       font-style: italic;
-      font-size: clamp(1.25rem, 2.8vw, 2rem);
+      font-stretch: 100%;
+      font-weight: 300;
+      font-size: clamp(1.1rem, 2.2vw, 1.5rem);
       color: var(--ink-2);
-      margin-bottom: 10px;
-      letter-spacing: 0;
+      margin-bottom: 16px;
+      letter-spacing: 0.01em;
+      text-transform: none;
     }
     .dive-btn {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      padding: 14px 28px;
-      border: 1px solid var(--ink);
-      background: var(--ink);
-      color: #07080C;
-      font: 500 15px 'Inter', sans-serif;
-      letter-spacing: 0.02em;
+      gap: 14px;
+      padding: 17px 30px;
+      border: 1px solid rgba(240,240,238,0.22);
+      background: rgba(5,5,8,0.35);
+      color: var(--ink);
+      font: 500 13px/1 var(--font);
+      font-stretch: 125%;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
     }
-    .dive-btn:hover { background: transparent; color: var(--ink); }
-    .dive-btn svg { width: 18px; height: 18px; transition: transform 0.2s ease; }
-    .dive-btn:hover svg { transform: translateX(3px); }
+    /* Welcome title types itself out; Dive in and the tally follow it. */
+    .tw { visibility: hidden; }
+    .tw.on { visibility: visible; }
+    .tw.caret { position: relative; }
+    .tw.caret::after {
+      content: '';
+      position: absolute;
+      left: 100%;
+      top: 0.1em;
+      bottom: 0.08em;
+      width: 0.06em;
+      margin-left: 0.08em;
+      background: currentColor;
+      animation: caretBlink 1s steps(1) infinite;
+    }
+    @keyframes caretBlink { 50% { opacity: 0; } }
+    .js .home:not(.typed) .dive-btn,
+    .js .home:not(.typed) .tally { opacity: 0; visibility: hidden; }
+    .js .home.typed .dive-btn,
+    .js .home.typed .tally { transition: opacity 0.7s ease, visibility 0s; }
+    .dive-btn svg { width: 16px; height: 16px; transition: transform 0.35s cubic-bezier(.16,1,.3,1); }
+    .dive-btn:hover svg, .dive-btn:focus-visible svg { transform: translateX(4px); }
     .tally { font-size: 13px; color: var(--ink-2); letter-spacing: 0.02em; }
     .tally:empty { display: none; }
     .earth-credit {
@@ -891,24 +941,28 @@
       background: #0B0C12;
     }
     .poll-open .poll { display: block; animation: fadeUp 0.6s ease both; }
-    .poll-q { font-family: 'Instrument Serif', serif; font-size: 1.45rem; color: var(--ink); margin-bottom: 12px; }
+    .poll-q { font-stretch: 112%; font-size: 17px; font-weight: 400; letter-spacing: 0.01em; color: var(--ink); margin-bottom: 14px; }
     .poll-actions { display: flex; gap: 12px; justify-content: center; }
     .poll-actions:empty { display: none; }
     .poll-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 16px;
-      border: 1px solid var(--rule);
+      gap: 10px;
+      padding: 12px 18px;
+      border: 1px solid rgba(240,240,238,0.18);
       background: transparent;
       color: var(--ink);
-      font: 500 14px 'Inter', sans-serif;
+      font: 500 11px/1 var(--font);
+      font-stretch: 125%;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: border-color 0.15s ease, color 0.15s ease;
+      transition: color 0.2s ease;
     }
-    .poll-btn svg { width: 18px; height: 18px; }
-    .poll-btn:hover { border-color: var(--green); color: var(--green); }
-    .poll-btn[data-vote="down"]:hover { border-color: var(--red); color: var(--red); }
+    .poll-btn svg { width: 16px; height: 16px; }
+    .poll-btn:not(:disabled):hover { color: var(--green); }
+    .poll-btn[data-vote="down"]:not(:disabled):hover { color: var(--red); }
     .poll-btn:disabled { opacity: 0.5; cursor: default; }
 
     /* Go Home panel */
@@ -916,22 +970,54 @@
     html:not(.js) #go-home { display: none; }
     .js #go-home.is-open { max-width: 560px; text-align: center; }
     #go-home .section-label { justify-content: center; }
-    .go-home-copy { color: var(--ink-2); font-size: 15px; line-height: 1.7; margin: -12px 0 28px; }
+    .go-home-copy { color: var(--ink-2); font-size: 16px; line-height: 1.65; margin: -12px 0 28px; }
     .go-home-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
     .btn {
-      padding: 12px 24px;
+      padding: 15px 24px;
       border: 1px solid transparent;
-      font: 500 14px 'Inter', sans-serif;
+      font: 500 12px/1 var(--font);
+      font-stretch: 125%;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
       cursor: pointer;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      transition: background 0.15s ease, color 0.15s ease;
     }
     .btn-primary { background: var(--cyan); border-color: var(--cyan); color: #04121A; }
     .btn-primary:hover { background: transparent; color: var(--cyan); }
-    .btn-ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
-    .btn-ghost:hover { border-color: var(--ink); }
+    .btn-ghost { background: transparent; color: var(--ink); border-color: rgba(240,240,238,0.18); }
 
     @media (max-width: 640px) {
       .home-content { gap: 22px; }
+    }
+
+    /* Reticle buttons: a faint frame with two bright opposing corners that
+       sweep out into a full frame on hover or keyboard focus. Corners take
+       the button's text colour, so a coloured hover recolours the frame. */
+    .dive-btn, .btn-ghost, .carousel-btn, .poll-btn { position: relative; }
+    .dive-btn::before, .btn-ghost::before, .exit-star::before, .carousel-btn::before, .poll-btn::before,
+    .dive-btn::after, .btn-ghost::after, .exit-star::after, .carousel-btn::after, .poll-btn::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      pointer-events: none;
+      transition: width 0.4s cubic-bezier(.16,1,.3,1), height 0.4s cubic-bezier(.16,1,.3,1);
+    }
+    .dive-btn::before, .btn-ghost::before, .exit-star::before, .carousel-btn::before, .poll-btn::before {
+      top: -1px; left: -1px; border-top: 1px solid currentColor; border-left: 1px solid currentColor;
+    }
+    .dive-btn::after, .btn-ghost::after, .exit-star::after, .carousel-btn::after, .poll-btn::after {
+      bottom: -1px; right: -1px; border-bottom: 1px solid currentColor; border-right: 1px solid currentColor;
+    }
+    .carousel-btn::before, .carousel-btn::after { width: 7px; height: 7px; }
+    .dive-btn:hover::before, .dive-btn:hover::after, .dive-btn:focus-visible::before, .dive-btn:focus-visible::after,
+    .btn-ghost:hover::before, .btn-ghost:hover::after, .btn-ghost:focus-visible::before, .btn-ghost:focus-visible::after,
+    .exit-star:hover::before, .exit-star:hover::after, .exit-star:focus-visible::before, .exit-star:focus-visible::after,
+    .carousel-btn:hover::before, .carousel-btn:hover::after, .carousel-btn:focus-visible::before, .carousel-btn:focus-visible::after,
+    .poll-btn:not(:disabled):hover::before, .poll-btn:not(:disabled):hover::after,
+    .poll-btn:focus-visible::before, .poll-btn:focus-visible::after {
+      width: calc(100% + 1px);
+      height: calc(100% + 1px);
     }
 
     /* Keyboard focus */
@@ -1357,7 +1443,7 @@
         }
       }
 
-      var pt = {};
+      var pt = {}, bhPt = {};
       function draw(t) {
         var dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0;
         lastT = t;
@@ -1371,6 +1457,15 @@
         lookX += (mouseX - lookX) * 0.04;
         lookY += (mouseY - lookY) * 0.04;
         setView();
+
+        var bh = null;
+        if (!document.documentElement.classList.contains('at-home') &&
+            project(BLACK_HOLE.dir[0], BLACK_HOLE.dir[1], BLACK_HOLE.dir[2], bhPt)) {
+          var bhR = focal * BLACK_HOLE.size;
+          if (bhPt.x > -bhR * 6 && bhPt.x < w + bhR * 6 && bhPt.y > -bhR * 6 && bhPt.y < h + bhR * 6) {
+            bh = { x: bhPt.x, y: bhPt.y, r: bhR };
+          }
+        }
 
         // Warp flight (Dive in / Take me home): the normal sky fades out
         // while streaks rush past, then fades back in. 0 = no warp, 1 = peak.
@@ -1387,6 +1482,16 @@
         for (var i = 0; skyAlpha > 0 && i < stars.length; i++) {
           var s = stars[i];
           if (!project(s.x, s.y, s.z, pt)) continue;
+          if (bh) {
+            // Lensing: push stars outward around the black hole's shadow.
+            var lx = pt.x - bh.x, ly = pt.y - bh.y, ld = Math.sqrt(lx * lx + ly * ly);
+            if (ld < bh.r * 6) {
+              if (ld < bh.r * 1.1) continue;
+              var bent = ld + bh.r * bh.r * 1.6 / ld;
+              pt.x = bh.x + lx / ld * bent;
+              pt.y = bh.y + ly / ld * bent;
+            }
+          }
           if (pt.x < -4 || pt.x > w + 4 || pt.y < -4 || pt.y > h + 4) continue;
           var twinkle = reduce ? 1 : 0.6 + 0.4 * Math.sin(t * 0.001 * s.speed + s.phase);
           ctx.globalAlpha = s.alpha * twinkle * skyAlpha;
@@ -1396,7 +1501,7 @@
           ctx.fill();
         }
 
-        if (skyAlpha > 0) drawPlanets(skyAlpha);
+        if (skyAlpha > 0) drawPlanets(skyAlpha, bh, t);
         if (warpAmt > 0) drawWarp(warpAmt, dt);
 
         if (!reduce && warpAmt < 0.1) {
@@ -1439,6 +1544,62 @@
         // below, behind to the right: a violet ice giant
         { dir: dirOf(140, -40), size: 0.11, base: '#6D4FC2', light: '#CBBEFF', dark: '#100828', glow: '167,139,250' }
       ];
+
+      // A black hole in the sky ahead and to the right of the constellation.
+      // Stars behind it are bent outward around its shadow (gravitational
+      // lensing, in the star loop); its accretion disk crosses in front, and
+      // the disk's far side is lensed up over the top as a glowing arc.
+      var BLACK_HOLE = { dir: dirOf(37, 6), size: 0.045 };
+
+      function drawBlackHole(b, t) {
+        var x = b.x, y = b.y, R = b.r, spin = reduce ? 0 : t * 0.0005, TILT = -0.22;
+        var glow = ctx.createRadialGradient(x, y, R, x, y, R * 4.5);
+        glow.addColorStop(0, 'rgba(255,170,90,0.2)');
+        glow.addColorStop(1, 'rgba(255,170,90,0)');
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(x, y, R * 4.5, 0, Math.PI * 2); ctx.fill();
+        ctx.lineCap = 'butt';
+        diskHalf(x, y, R, TILT, spin, false);
+        // The disk's far side, bent up over the top (and faintly under) the shadow.
+        lensArc(x, y, R * 1.4, Math.PI - 0.3 + TILT, Math.PI * 2 + 0.3 + TILT, R * 0.5, '255,200,140', 0.85, spin);
+        lensArc(x, y, R * 1.13, Math.PI - 0.2 + TILT, Math.PI * 2 + 0.2 + TILT, R * 0.12, '255,245,230', 0.9, spin);
+        lensArc(x, y, R * 1.24, 0.35 + TILT, Math.PI - 0.35 + TILT, R * 0.18, '255,200,140', 0.4, spin);
+        ctx.fillStyle = '#000';
+        ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = 'rgba(255,240,220,0.9)';
+        ctx.lineWidth = Math.max(1, R * 0.04);
+        ctx.beginPath(); ctx.arc(x, y, R * 1.02, 0, Math.PI * 2); ctx.stroke();
+        diskHalf(x, y, R, TILT, spin, true);
+      }
+      // Paint for the disk: brighter on the left (gas moving toward us), with
+      // clumps of hot gas streaming around. A conic gradient keeps it smooth.
+      function diskPaint(x, y, col, strength, spin) {
+        if (!ctx.createConicGradient) return 'rgba(' + col + ',' + strength * 0.6 + ')';
+        var g = ctx.createConicGradient(0, x, y);
+        for (var k = 0; k <= 24; k++) {
+          var a = k / 24 * Math.PI * 2;
+          var light = (0.55 - 0.45 * Math.cos(a)) * (0.75 + 0.25 * Math.sin(a * 5 + spin * 5));
+          g.addColorStop(k / 24, 'rgba(' + col + ',' + (strength * light).toFixed(3) + ')');
+        }
+        return g;
+      }
+      // Concentric rings, white-hot inside to orange outside, overlapping
+      // into one smooth disk.
+      var DISK = [[1.6, 0.95, '255,240,215'], [1.95, 0.85, '255,214,160'], [2.3, 0.7, '255,175,100'], [2.7, 0.5, '255,145,70'], [3.1, 0.28, '240,120,60']];
+      function diskHalf(x, y, R, tilt, spin, front) {
+        var from = front ? 0 : Math.PI, to = front ? Math.PI : Math.PI * 2;
+        ctx.lineWidth = R * 0.4;
+        for (var k = 0; k < DISK.length; k++) {
+          var ring = DISK[k];
+          ctx.strokeStyle = diskPaint(x, y, ring[2], ring[1], spin);
+          ctx.beginPath(); ctx.ellipse(x, y, R * ring[0], R * ring[0] * 0.17, tilt, from, to); ctx.stroke();
+        }
+      }
+      function lensArc(x, y, radius, from, to, width, col, strength, spin) {
+        ctx.lineWidth = width;
+        ctx.strokeStyle = diskPaint(x, y, col, strength, spin);
+        ctx.beginPath(); ctx.arc(x, y, radius, from, to); ctx.stroke();
+      }
 
       function drawRing(p, x, y, r, front) {
         // Lower half of the ellipse is in front of the planet, upper half behind.
@@ -1502,8 +1663,17 @@
         pctx.restore();
       }
 
+      function prepLayer() {
+        if (planetLayer.width !== canvas.width || planetLayer.height !== canvas.height) {
+          planetLayer.width = canvas.width;
+          planetLayer.height = canvas.height;
+        }
+        pctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
+        pctx.clearRect(0, 0, w, h);
+      }
+
       var pc = {};
-      function drawPlanets(alpha) {
+      function drawPlanets(alpha, bh, t) {
         var mainCtx = ctx, any = false;
         ctx = pctx; // drawPlanet/drawRing draw on whatever ctx is
         for (var i = 0; i < PLANETS.length; i++) {
@@ -1512,16 +1682,12 @@
           var r = focal * p.size;
           var reach = r * (p.ring ? 2.7 : 1.5);
           if (pc.x < -reach || pc.x > w + reach || pc.y < -reach || pc.y > h + reach) continue;
-          if (!any) {
-            if (planetLayer.width !== canvas.width || planetLayer.height !== canvas.height) {
-              planetLayer.width = canvas.width;
-              planetLayer.height = canvas.height;
-            }
-            pctx.setTransform(canvas.width / w, 0, 0, canvas.height / h, 0, 0);
-            pctx.clearRect(0, 0, w, h);
-            any = true;
-          }
+          if (!any) { prepLayer(); any = true; }
           drawPlanet(p, pc.x, pc.y, r);
+        }
+        if (bh) {
+          if (!any) { prepLayer(); any = true; }
+          drawBlackHole(bh, t);
         }
         ctx = mainCtx;
         if (!any) return;
@@ -1814,6 +1980,69 @@
       document.querySelectorAll('[data-carousel]').forEach(setup);
     }());
 
+    // Welcome title typewriter (~2.5s). Every character is in place from the
+    // start, only hidden, so the centred title never shifts while it types;
+    // screen readers get the whole title at once from the aria-label.
+    var typewriter = (function () {
+      var home = document.getElementById('home');
+      var title = home.querySelector('.home-title');
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var TOTAL = 2500, PAUSE = 280; // ms; PAUSE is the beat between the two lines
+      var kicker = title.querySelector('.home-kicker');
+      title.setAttribute('aria-label', kicker.textContent + ' ' + title.lastChild.textContent);
+      var chars = [], breakAt = 0;
+      (function split(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+          if (n.nodeType !== 3) { split(n); if (n === kicker) breakAt = chars.length; return; }
+          var frag = document.createDocumentFragment();
+          Array.from(n.textContent).forEach(function (ch) {
+            var span = document.createElement('span');
+            span.className = 'tw';
+            span.textContent = ch;
+            span.setAttribute('aria-hidden', 'true');
+            frag.appendChild(span);
+            chars.push(span);
+          });
+          n.replaceWith(frag);
+        });
+      })(title);
+      var timer = null;
+
+      function finish() {
+        chars.forEach(function (c) { c.classList.add('on'); });
+        home.classList.add('typed');
+      }
+      function stop() {
+        clearTimeout(timer);
+        chars.forEach(function (c) { c.classList.remove('caret'); });
+      }
+      function start(delay) {
+        stop();
+        if (reduce) { finish(); return; }
+        home.classList.remove('typed');
+        chars.forEach(function (c) { c.classList.remove('on'); });
+        var step = (TOTAL - PAUSE) / chars.length, i = 0;
+        function next() {
+          if (i > 0) chars[i - 1].classList.remove('caret');
+          if (i === chars.length) {
+            chars[i - 1].classList.add('caret'); // keep blinking a moment, then go
+            home.classList.add('typed');
+            timer = setTimeout(stop, 1600);
+            return;
+          }
+          chars[i].classList.add('on', 'caret');
+          i++;
+          // Uneven, human rhythm: a beat between lines, quicker over spaces.
+          var wait = step * (0.6 + Math.random() * 0.8);
+          if (i === breakAt) wait += PAUSE;
+          if (chars[i - 1].textContent === ' ') wait *= 0.5;
+          timer = setTimeout(next, wait);
+        }
+        timer = setTimeout(next, delay);
+      }
+      return { start: start, stop: stop };
+    }());
+
     // Views and history. The site has three kinds of view, each with its own
     // address: the Earth home page (/), the universe (/#universe), and an open
     // star (/#projects etc.). Moving between them animates:
@@ -1887,6 +2116,7 @@
 
       // Earth -> universe.
       function dive(animate) {
+        typewriter.stop();
         root.classList.add('diving');
         if (!animate) { root.classList.remove('at-home'); return; }
         window.sky && window.sky.warp(1, WARP);
@@ -1903,13 +2133,23 @@
         var land = function () {
           window.sky && window.sky.warp(-1, WARP);
           root.classList.add('at-home');
+          typewriter.start(1100);
           // Next frame, let Earth rise back into view.
           requestAnimationFrame(function () {
             requestAnimationFrame(function () { root.classList.remove('diving'); });
           });
           viewTimer = setTimeout(function () { journey.arrivedHome(); }, WARP);
         };
-        if (!animate) { root.classList.add('at-home'); root.classList.remove('diving'); return; }
+        if (!animate) {
+          // First load: Earth is simply there; the typewriter is the intro.
+          root.classList.add('no-anim', 'at-home');
+          root.classList.remove('diving');
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { root.classList.remove('no-anim'); });
+          });
+          typewriter.start(400);
+          return;
+        }
         if (fromStar) viewTimer = setTimeout(land, 450); else land();
       }
 
