@@ -840,7 +840,11 @@
       filter: saturate(1.1) brightness(0.92);
       transform-origin: 50% 100%;
       animation: earthDrift 48s ease-in-out infinite alternate;
+      transition: opacity 0.9s ease;
     }
+    /* Phones paint a JPEG top-down while it downloads, leaving Earth cut off
+       for a few seconds. Keep it hidden until fully loaded, then fade in. */
+    .js .earth-img:not(.loaded) { opacity: 0; }
     @keyframes earthDrift {
       from { transform: rotate(-0.7deg) scale(1); }
       to   { transform: rotate(0.7deg) scale(1.04); }
@@ -1062,7 +1066,7 @@
   <!-- Earth: the landing page -->
   <div class="home" id="home">
     <div class="earth" aria-hidden="true">
-      <img class="earth-img" src="earth.jpg" alt="" width="1920" height="1078" decoding="async" fetchpriority="high" />
+      <img class="earth-img" src="earth.jpg" alt="" width="1920" height="1078" decoding="async" fetchpriority="high" onload="this.classList.add('loaded')" />
     </div>
     <div class="home-content">
       <h1 class="home-title"><span class="home-kicker">Explore the Universe of</span>Aryan Thakur</h1>
