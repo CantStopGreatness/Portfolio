@@ -2,12 +2,14 @@ Aryan Thakur — Portfolio
 A single-page personal portfolio site, built with plain HTML, CSS, and a small amount of JavaScript (no frameworks or build step required).
 
 Sections:
-Hero — name, role, short bio, and quick links (GitHub, Email, LinkedIn)
-Education — degree, activities/societies, coursework, and awards
+Hero — name, headline, Resume / GitHub / LinkedIn buttons, and "Skip to overview" section links
+About — short bio
+Projects — Vigil (featured), Waive, and CourtIQ, each with a screenshot, impact line, live demo, and code link
 Experience — work and volunteer history with role, dates, and bullet points
-Projects — Waive and CourtIQ, each with a description, tech stack tags, and a live link
-Contact — email, GitHub, phone, and location
-The top nav lets you jump straight to Education, Experience, Projects, or Contact.
+Education — degree, activities/societies, coursework, and awards
+Contact — email, GitHub, LinkedIn, resume, phone, and location
+/?view=classic skips the universe tour and shows every section as one scrollable page with a sticky nav.
+The resume lives at /resume.pdf; project screenshots live in /assets/projects/.
 
 Tech:
 Plain HTML/CSS/JS — everything lives in index.html
