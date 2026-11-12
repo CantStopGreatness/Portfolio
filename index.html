@@ -337,8 +337,8 @@
       color: var(--ink);
       line-height: 1.6;
       margin-bottom: 12px;
-      padding-left: 12px;
-      border-left: 2px solid var(--orange);
+      padding-left: 14px;
+      border-left: 1px solid var(--orange);
     }
     .project-impact {
       font-size: 12px;
@@ -703,10 +703,12 @@
       flex-shrink: 0;
       margin: auto;
       padding: 48px;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-top: 2px solid var(--c);
-      background: #0B0C12;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-top-color: color-mix(in srgb, var(--c) 45%, transparent);
+      background:
+        radial-gradient(90% 50% at 50% 0%, color-mix(in srgb, var(--c) 11%, transparent), transparent 70%),
+        linear-gradient(180deg, rgba(14,15,24,0.96), rgba(9,10,16,0.97));
+      box-shadow: 0 40px 120px -20px rgba(0,0,0,0.75), 0 0 80px -30px color-mix(in srgb, var(--c) 40%, transparent);
       transform: translateY(18px) scale(0.97);
       transition: transform 0.35s ease;
     }
@@ -715,6 +717,36 @@
       transition: transform 0.6s cubic-bezier(.22,1,.36,1) 0.45s;
     }
     .js section::before { display: none; }
+    /* The star you entered, set into the panel's top edge: a bright core
+       whose light runs along the rim. */
+    .js section.is-open::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: -1px;
+      width: min(70%, 520px);
+      height: 1px;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c) 70%, #fff), #fff, color-mix(in srgb, var(--c) 70%, #fff), transparent);
+      filter: drop-shadow(0 0 6px var(--c));
+      pointer-events: none;
+    }
+    .js .section-label::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: -4px;
+      width: 7px;
+      height: 7px;
+      margin-left: -3.5px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 6px 2px #fff, 0 0 22px 8px var(--c), 0 0 60px 18px color-mix(in srgb, var(--c) 35%, transparent);
+      pointer-events: none;
+    }
+    .js .section-label { position: static; }
+    .js section.is-open { scrollbar-width: thin; }
+    .js main { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--star, #fff) 45%, transparent) transparent; }
     .js .section-label::after { background: var(--c); opacity: 1; }
     .section-label:focus { outline: none; }
 
@@ -864,7 +896,20 @@
     .star:focus-visible .star-core { transform: scale(1.45) rotate(45deg); }
     .star:hover .star-label,
     .star:focus-visible .star-label { color: var(--c); }
-    .star:focus-visible { outline-offset: 6px; }
+    .star:focus-visible { outline: none; }
+    .star::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      border: 1px solid color-mix(in srgb, var(--c) 80%, #fff);
+      opacity: 0;
+      transform: scale(0.55);
+      transition: opacity 0.35s ease, transform 0.6s cubic-bezier(.16,1,.3,1);
+      pointer-events: none;
+    }
+    .star:hover::after { opacity: 0.55; transform: scale(1); }
+    .star:focus-visible::after { opacity: 1; transform: scale(1.12); }
 
     @keyframes starPulse {
       0%, 100% { transform: scale(0.8); opacity: 0.6; }
@@ -886,6 +931,47 @@
     .universe-footer a { color: var(--ink-3); display: inline-flex; padding: 4px; transition: color 0.15s; }
     .universe-footer a:hover { color: var(--ink); }
     .universe-footer svg { width: 18px; height: 18px; }
+    .universe-links { display: flex; align-items: center; gap: 14px; }
+    .universe-footer .universe-text-link {
+      font-stretch: 125%;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .universe-footer a:focus-visible { color: var(--ink); }
+
+    /* Constellation: hairlines joining the section stars, blended from one
+       star's colour to the next. They draw themselves in when you arrive,
+       and the two lines touching a star brighten while you point at it. */
+    .constellation {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      /* Lines fade out around the title and hint, so they never cross text. */
+      -webkit-mask-image: radial-gradient(ellipse 48% 15% at 50% 47%, transparent 72%, #000 100%);
+      mask-image: radial-gradient(ellipse 48% 15% at 50% 47%, transparent 72%, #000 100%);
+    }
+    .constellation line {
+      stroke-width: 1;
+      stroke-linecap: round;
+      opacity: 0.28;
+      stroke-dasharray: var(--len) var(--len);
+      stroke-dashoffset: var(--len);
+      transition: opacity 0.5s ease, stroke-width 0.5s ease;
+    }
+    .constellation.drawn line {
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1) var(--d, 0s), opacity 0.5s ease;
+    }
+    .constellation line.lit { opacity: 1; stroke-width: 1.6; }
+    .js.in-star .constellation, .js.at-home .constellation { opacity: 0; }
+
+    ::selection { background: color-mix(in srgb, var(--cyan) 35%, transparent); color: #fff; }
 
     /* Phones: portrait sky, so stars move above and below the title. */
     @media (max-width: 640px) {
@@ -1211,6 +1297,8 @@
     <canvas id="sky" aria-hidden="true"></canvas>
 
     <div class="universe-ui">
+    <!-- Constellation lines between the section stars; drawn by JS. -->
+    <svg class="constellation" aria-hidden="true"></svg>
     <div class="universe-heading">
       <p class="universe-title"><span class="universe-kicker">The Universe of</span>Aryan Thakur</p>
       <p class="universe-hint">Choose a star to explore · Swipe to look around</p>
@@ -1227,7 +1315,11 @@
 
     <footer class="universe-footer">
       <p>Aryan Thakur 2026</p>
-      <a href="https://github.com/CantStopGreatness" target="_blank" rel="noopener noreferrer" aria-label="GitHub (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></a>
+      <div class="universe-links">
+        <a href="resume.pdf" data-resume class="universe-text-link">Resume<span class="sr-only"> (PDF)</span></a>
+        <a href="https://github.com/CantStopGreatness" target="_blank" rel="noopener noreferrer" aria-label="GitHub (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z"/></svg></a>
+        <a href="https://www.linkedin.com/in/aryan-thakur-028691355/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn (opens in a new tab)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg></a>
+      </div>
     </footer>
     </div>
   </div>
@@ -1545,7 +1637,7 @@
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var TINTS = ['255,255,255', '255,255,255', '255,255,255', '200,220,255', '255,232,210'];
       var MAX_PITCH = 1.3;      // rad (~75deg) up or down; sideways is unlimited
-      var stars = [], streaks = [];
+      var stars = [], streaks = [], baseCount = 0;
       var w = 0, h = 0, cx = 0, cy = 0, focal = 1;
       var yaw = 0, pitch = 0, velYaw = 0, velPitch = 0;
       var mouseX = 0, mouseY = 0, lookX = 0, lookY = 0;
@@ -1573,7 +1665,8 @@
         var count = Math.min(4000, Math.round(onScreen * 4 * Math.PI / visible));
         // Star positions don't depend on screen size, so keep the same sky on
         // small resizes (e.g. a phone's address bar showing/hiding).
-        if (Math.abs(count - stars.length) < stars.length * 0.25) return;
+        if (Math.abs(count - baseCount) < baseCount * 0.25) return;
+        baseCount = count;
         stars = [];
         for (var i = 0; i < count; i++) {
           var z = Math.random() * 2 - 1, a = Math.random() * Math.PI * 2, r = Math.sqrt(1 - z * z);
@@ -1587,6 +1680,98 @@
             tint: TINTS[Math.floor(Math.random() * TINTS.length)]
           });
         }
+        // The Milky Way: many dim stars packed around the band's great
+        // circle, thinning out with distance from it (roughly Gaussian).
+        for (var j = 0; j < count * 0.7; j++) {
+          var th = Math.random() * Math.PI * 2;
+          var off = (Math.random() + Math.random() + Math.random() - 1.5) * 0.17;
+          var d = bandPoint(th, off);
+          var sz = Math.random();
+          stars.push({
+            x: d[0], y: d[1], z: d[2],
+            r: 0.25 + sz * sz * 0.8,
+            alpha: 0.12 + Math.random() * 0.4,
+            speed: 0.4 + Math.random() * 1.8,
+            phase: Math.random() * Math.PI * 2,
+            tint: Math.random() < 0.5 ? '210,222,255' : '255,236,214'
+          });
+        }
+      }
+
+      // The band runs diagonally across the sky, from high on the left to low
+      // on the right of the starting view. u and v span its plane; n is its
+      // axis. bandPoint(theta, off) is a direction on the band, off radians
+      // to the side of its centre line.
+      var BAND = (function () {
+        function dir(right, up) {
+          var a = right * Math.PI / 180, e = up * Math.PI / 180;
+          return [Math.cos(e) * Math.sin(a), Math.sin(e), Math.cos(e) * Math.cos(a)];
+        }
+        function cross(p, q) { return [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]]; }
+        function norm(p) { var l = Math.sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]); return [p[0] / l, p[1] / l, p[2] / l]; }
+        var u = dir(-62, 34), n = norm(cross(u, dir(58, -30)));
+        return { u: u, v: cross(n, u), n: n };
+      }());
+      function bandPoint(th, off) {
+        var c = Math.cos(th), sn = Math.sin(th), co = Math.cos(off), so = Math.sin(off);
+        return [
+          co * (BAND.u[0] * c + BAND.v[0] * sn) + so * BAND.n[0],
+          co * (BAND.u[1] * c + BAND.v[1] * sn) + so * BAND.n[1],
+          co * (BAND.u[2] * c + BAND.v[2] * sn) + so * BAND.n[2]
+        ];
+      }
+
+      // The band's glow: soft clouds painted at quarter resolution (cheap,
+      // and the upscale blurs them for free), with darker dust lanes cut
+      // through, then laid under the stars.
+      var GLOW_STEPS = 64, glowClouds = [];
+      for (var g = 0; g < GLOW_STEPS; g++) {
+        var th = g / GLOW_STEPS * Math.PI * 2;
+        glowClouds.push({
+          dir: bandPoint(th + rand(-0.03, 0.03), rand(-0.05, 0.05)),
+          size: rand(0.18, 0.32),
+          alpha: rand(0.09, 0.17) * (0.55 + 0.45 * Math.sin(th * 3 + 1)), // brighter and fainter stretches
+          tint: g % 3 === 0 ? '255,214,182' : g % 3 === 1 ? '170,186,255' : '206,196,255',
+          dust: g % 2 === 0 ? { dir: bandPoint(th, 0.035), size: rand(0.04, 0.07) } : null
+        });
+      }
+      var glowLayer = document.createElement('canvas');
+      var gctx = glowLayer.getContext('2d');
+      var gp = {};
+      function drawBand(alpha) {
+        var gw = Math.ceil(w / 4), gh = Math.ceil(h / 4);
+        if (glowLayer.width !== gw || glowLayer.height !== gh) { glowLayer.width = gw; glowLayer.height = gh; }
+        gctx.clearRect(0, 0, gw, gh);
+        var any = false;
+        for (var k = 0; k < glowClouds.length; k++) {
+          var c = glowClouds[k];
+          if (!project(c.dir[0], c.dir[1], c.dir[2], gp)) continue;
+          var r = focal * c.size;
+          if (gp.x < -r || gp.x > w + r || gp.y < -r || gp.y > h + r) continue;
+          any = true;
+          var x = gp.x / 4, y = gp.y / 4, rr = r / 4;
+          var grad = gctx.createRadialGradient(x, y, 0, x, y, rr);
+          grad.addColorStop(0, 'rgba(' + c.tint + ',' + c.alpha.toFixed(3) + ')');
+          grad.addColorStop(1, 'rgba(' + c.tint + ',0)');
+          gctx.fillStyle = grad;
+          gctx.fillRect(x - rr, y - rr, rr * 2, rr * 2);
+        }
+        if (!any) return;
+        gctx.globalCompositeOperation = 'destination-out';
+        for (k = 0; k < glowClouds.length; k++) {
+          var dust = glowClouds[k].dust;
+          if (!dust || !project(dust.dir[0], dust.dir[1], dust.dir[2], gp)) continue;
+          var dr = focal * dust.size / 4, dx = gp.x / 4, dy = gp.y / 4;
+          var dg = gctx.createRadialGradient(dx, dy, 0, dx, dy, dr);
+          dg.addColorStop(0, 'rgba(0,0,0,0.55)');
+          dg.addColorStop(1, 'rgba(0,0,0,0)');
+          gctx.fillStyle = dg;
+          gctx.fillRect(dx - dr, dy - dr, dr * 2, dr * 2);
+        }
+        gctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(glowLayer, 0, 0, w, h);
+        ctx.globalAlpha = 1;
       }
 
       // World direction -> camera space, for the current view. Returns null
@@ -1712,6 +1897,7 @@
         var skyAlpha = 1 - Math.min(1, warpAmt * 1.6);
 
         ctx.clearRect(0, 0, w, h);
+        if (skyAlpha > 0) drawBand(skyAlpha);
         for (var i = 0; skyAlpha > 0 && i < stars.length; i++) {
           var s = stars[i];
           if (!project(s.x, s.y, s.z, pt)) continue;
@@ -2461,6 +2647,104 @@
       var linkedStar = initial !== 'home' && initial !== 'universe' ? initial : null;
       history.replaceState({ view: 'home' }, '', location.pathname + location.search);
       go('home', false);
+    }());
+
+    // Constellation: hairlines join the section stars into one ring around
+    // the title. Endpoints come from the stars' layout boxes (the zoom
+    // transform doesn't affect them) and stop short of each star's glow.
+    // The lines draw in each time you arrive in the universe.
+    (function () {
+      if (CLASSIC) return;
+      var svg = document.querySelector('.constellation');
+      if (!svg) return;
+      var root = document.documentElement;
+      var NS = 'http://www.w3.org/2000/svg';
+      var ORDER = ['go-home', 'education', 'projects', 'contact', 'experience', 'about'];
+      var GAP = 30;       // px kept clear around each star
+      var LABEL_GAP = 66; // ...and more on the side its label sits (above)
+      var stars = {};
+      document.querySelectorAll('.universe .star').forEach(function (star) {
+        stars[star.getAttribute('data-section')] = star;
+      });
+
+      function centre(star) {
+        return { x: star.offsetLeft + star.offsetWidth / 2, y: star.offsetTop + star.offsetHeight / 2 };
+      }
+      function colour(star) { return getComputedStyle(star).getPropertyValue('--c').trim() || '#fff'; }
+
+      function build() {
+        svg.textContent = '';
+        var defs = document.createElementNS(NS, 'defs');
+        svg.appendChild(defs);
+        ORDER.forEach(function (id, i) {
+          var nextId = ORDER[(i + 1) % ORDER.length];
+          var a = stars[id], b = stars[nextId];
+          if (!a || !b) return;
+          var p = centre(a), q = centre(b);
+          var dx = q.x - p.x, dy = q.y - p.y, len = Math.sqrt(dx * dx + dy * dy);
+          var ux = dx / len, uy = dy / len;
+          var g1 = uy < -0.35 ? LABEL_GAP : GAP, g2 = uy > 0.35 ? LABEL_GAP : GAP;
+          if (len - g1 - g2 < 56) return; // too short to read as a line
+          var x1 = p.x + ux * g1, y1 = p.y + uy * g1, x2 = q.x - ux * g2, y2 = q.y - uy * g2;
+
+          var grad = document.createElementNS(NS, 'linearGradient');
+          grad.id = 'cl-' + i;
+          grad.setAttribute('gradientUnits', 'userSpaceOnUse');
+          grad.setAttribute('x1', x1); grad.setAttribute('y1', y1);
+          grad.setAttribute('x2', x2); grad.setAttribute('y2', y2);
+          [[0, colour(a), 1], [0.5, '#ffffff', 0.5], [1, colour(b), 1]].forEach(function (st) {
+            var stop = document.createElementNS(NS, 'stop');
+            stop.setAttribute('offset', st[0]);
+            stop.setAttribute('stop-color', st[1]);
+            stop.setAttribute('stop-opacity', st[2]);
+            grad.appendChild(stop);
+          });
+          defs.appendChild(grad);
+
+          var line = document.createElementNS(NS, 'line');
+          line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+          line.setAttribute('stroke', 'url(#cl-' + i + ')');
+          line.setAttribute('data-a', id);
+          line.setAttribute('data-b', nextId);
+          var segment = len - g1 - g2;
+          line.style.setProperty('--len', segment.toFixed(1));
+          line.style.setProperty('--d', (0.25 + i * 0.14).toFixed(2) + 's'); // traced around the ring
+          svg.appendChild(line);
+        });
+      }
+
+      function light(id, on) {
+        svg.querySelectorAll('line').forEach(function (line) {
+          if (line.getAttribute('data-a') === id || line.getAttribute('data-b') === id) line.classList.toggle('lit', on);
+        });
+      }
+      Object.keys(stars).forEach(function (id) {
+        var star = stars[id];
+        star.addEventListener('pointerenter', function () { light(id, true); });
+        star.addEventListener('pointerleave', function () { light(id, false); });
+        star.addEventListener('focus', function () { light(id, true); });
+        star.addEventListener('blur', function () { light(id, false); });
+      });
+
+      // Draw in on arrival in the universe (not while in a star, not at home);
+      // reset, unanimated, once back on Earth so the next arrival draws again.
+      function sync() {
+        var inUniverse = !root.classList.contains('at-home');
+        if (!inUniverse) { svg.classList.remove('drawn'); return; }
+        if (svg.classList.contains('drawn')) return;
+        void svg.getBoundingClientRect(); // commit the undrawn state first
+        requestAnimationFrame(function () { svg.classList.add('drawn'); });
+      }
+      new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['class'] });
+
+      var resizeTimer = null;
+      window.addEventListener('resize', function () {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(build, 150);
+      });
+      build();
+      sync();
     }());
 
     // Journey ratings: thumbs up/down totals shared by every visitor, stored
