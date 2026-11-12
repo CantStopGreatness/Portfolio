@@ -941,36 +941,6 @@
     }
     .universe-footer a:focus-visible { color: var(--ink); }
 
-    /* Constellation: hairlines joining the section stars, blended from one
-       star's colour to the next. They draw themselves in when you arrive,
-       and the two lines touching a star brighten while you point at it. */
-    .constellation {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      overflow: visible;
-      pointer-events: none;
-      transition: opacity 0.5s ease;
-      /* Lines fade out around the title and hint, so they never cross text. */
-      -webkit-mask-image: radial-gradient(ellipse 48% 15% at 50% 47%, transparent 72%, #000 100%);
-      mask-image: radial-gradient(ellipse 48% 15% at 50% 47%, transparent 72%, #000 100%);
-    }
-    .constellation line {
-      stroke-width: 1;
-      stroke-linecap: round;
-      opacity: 0.28;
-      stroke-dasharray: var(--len) var(--len);
-      stroke-dashoffset: var(--len);
-      transition: opacity 0.5s ease, stroke-width 0.5s ease;
-    }
-    .constellation.drawn line {
-      stroke-dashoffset: 0;
-      transition: stroke-dashoffset 1.6s cubic-bezier(.16,1,.3,1) var(--d, 0s), opacity 0.5s ease;
-    }
-    .constellation line.lit { opacity: 1; stroke-width: 1.6; }
-    .js.in-star .constellation, .js.at-home .constellation { opacity: 0; }
-
     ::selection { background: color-mix(in srgb, var(--cyan) 35%, transparent); color: #fff; }
 
     /* Phones: portrait sky, so stars move above and below the title. */
@@ -1297,8 +1267,6 @@
     <canvas id="sky" aria-hidden="true"></canvas>
 
     <div class="universe-ui">
-    <!-- Constellation lines between the section stars; drawn by JS. -->
-    <svg class="constellation" aria-hidden="true"></svg>
     <div class="universe-heading">
       <p class="universe-title"><span class="universe-kicker">The Universe of</span>Aryan Thakur</p>
       <p class="universe-hint">Choose a star to explore · Swipe to look around</p>
@@ -2647,104 +2615,6 @@
       var linkedStar = initial !== 'home' && initial !== 'universe' ? initial : null;
       history.replaceState({ view: 'home' }, '', location.pathname + location.search);
       go('home', false);
-    }());
-
-    // Constellation: hairlines join the section stars into one ring around
-    // the title. Endpoints come from the stars' layout boxes (the zoom
-    // transform doesn't affect them) and stop short of each star's glow.
-    // The lines draw in each time you arrive in the universe.
-    (function () {
-      if (CLASSIC) return;
-      var svg = document.querySelector('.constellation');
-      if (!svg) return;
-      var root = document.documentElement;
-      var NS = 'http://www.w3.org/2000/svg';
-      var ORDER = ['go-home', 'education', 'projects', 'contact', 'experience', 'about'];
-      var GAP = 30;       // px kept clear around each star
-      var LABEL_GAP = 66; // ...and more on the side its label sits (above)
-      var stars = {};
-      document.querySelectorAll('.universe .star').forEach(function (star) {
-        stars[star.getAttribute('data-section')] = star;
-      });
-
-      function centre(star) {
-        return { x: star.offsetLeft + star.offsetWidth / 2, y: star.offsetTop + star.offsetHeight / 2 };
-      }
-      function colour(star) { return getComputedStyle(star).getPropertyValue('--c').trim() || '#fff'; }
-
-      function build() {
-        svg.textContent = '';
-        var defs = document.createElementNS(NS, 'defs');
-        svg.appendChild(defs);
-        ORDER.forEach(function (id, i) {
-          var nextId = ORDER[(i + 1) % ORDER.length];
-          var a = stars[id], b = stars[nextId];
-          if (!a || !b) return;
-          var p = centre(a), q = centre(b);
-          var dx = q.x - p.x, dy = q.y - p.y, len = Math.sqrt(dx * dx + dy * dy);
-          var ux = dx / len, uy = dy / len;
-          var g1 = uy < -0.35 ? LABEL_GAP : GAP, g2 = uy > 0.35 ? LABEL_GAP : GAP;
-          if (len - g1 - g2 < 56) return; // too short to read as a line
-          var x1 = p.x + ux * g1, y1 = p.y + uy * g1, x2 = q.x - ux * g2, y2 = q.y - uy * g2;
-
-          var grad = document.createElementNS(NS, 'linearGradient');
-          grad.id = 'cl-' + i;
-          grad.setAttribute('gradientUnits', 'userSpaceOnUse');
-          grad.setAttribute('x1', x1); grad.setAttribute('y1', y1);
-          grad.setAttribute('x2', x2); grad.setAttribute('y2', y2);
-          [[0, colour(a), 1], [0.5, '#ffffff', 0.5], [1, colour(b), 1]].forEach(function (st) {
-            var stop = document.createElementNS(NS, 'stop');
-            stop.setAttribute('offset', st[0]);
-            stop.setAttribute('stop-color', st[1]);
-            stop.setAttribute('stop-opacity', st[2]);
-            grad.appendChild(stop);
-          });
-          defs.appendChild(grad);
-
-          var line = document.createElementNS(NS, 'line');
-          line.setAttribute('x1', x1); line.setAttribute('y1', y1);
-          line.setAttribute('x2', x2); line.setAttribute('y2', y2);
-          line.setAttribute('stroke', 'url(#cl-' + i + ')');
-          line.setAttribute('data-a', id);
-          line.setAttribute('data-b', nextId);
-          var segment = len - g1 - g2;
-          line.style.setProperty('--len', segment.toFixed(1));
-          line.style.setProperty('--d', (0.25 + i * 0.14).toFixed(2) + 's'); // traced around the ring
-          svg.appendChild(line);
-        });
-      }
-
-      function light(id, on) {
-        svg.querySelectorAll('line').forEach(function (line) {
-          if (line.getAttribute('data-a') === id || line.getAttribute('data-b') === id) line.classList.toggle('lit', on);
-        });
-      }
-      Object.keys(stars).forEach(function (id) {
-        var star = stars[id];
-        star.addEventListener('pointerenter', function () { light(id, true); });
-        star.addEventListener('pointerleave', function () { light(id, false); });
-        star.addEventListener('focus', function () { light(id, true); });
-        star.addEventListener('blur', function () { light(id, false); });
-      });
-
-      // Draw in on arrival in the universe (not while in a star, not at home);
-      // reset, unanimated, once back on Earth so the next arrival draws again.
-      function sync() {
-        var inUniverse = !root.classList.contains('at-home');
-        if (!inUniverse) { svg.classList.remove('drawn'); return; }
-        if (svg.classList.contains('drawn')) return;
-        void svg.getBoundingClientRect(); // commit the undrawn state first
-        requestAnimationFrame(function () { svg.classList.add('drawn'); });
-      }
-      new MutationObserver(sync).observe(root, { attributes: true, attributeFilter: ['class'] });
-
-      var resizeTimer = null;
-      window.addEventListener('resize', function () {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(build, 150);
-      });
-      build();
-      sync();
     }());
 
     // Journey ratings: thumbs up/down totals shared by every visitor, stored
