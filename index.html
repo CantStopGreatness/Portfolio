@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="google-site-verification" content="lIunXseL4-mAnJML6cuSyGtToEP8wYboR9SIp3cK4K0" />
   <title>Aryan Thakur</title>
   <script>
@@ -439,6 +440,27 @@
     }
     .resume-action:hover, .resume-action:focus-visible { border-color: var(--ink); }
     .resume-frame { flex: 1; width: 100%; border: 0; background: #fff; }
+    .resume-scroll { display: none; }
+    .resume-viewer.is-image .resume-frame { display: none; }
+    .resume-viewer.is-image .resume-scroll {
+      display: block;
+      flex: 1;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: var(--bg-2);
+    }
+    .resume-image { display: block; width: 100%; height: auto; background: #fff; }
+    /* Phones: the viewer takes the whole screen, and the page fits its width. */
+    @media (max-width: 700px) {
+      .resume-viewer {
+        width: 100vw;
+        height: 100dvh;
+        border: 0;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .resume-bar { padding: 10px 12px 10px 16px; }
+    }
 
     .project-desc {
       font-size: 14px;
@@ -1589,6 +1611,10 @@
       <button type="button" class="resume-action resume-close" aria-label="Close resume">Close</button>
     </div>
     <iframe class="resume-frame" title="Aryan Thakur's resume (PDF)"></iframe>
+    <!-- Phones can't show a PDF inside a page well (Android won't, iOS shows
+         it at print size), so they get an image of the page that fits the
+         screen. Regenerate assets/resume.png whenever resume.pdf changes. -->
+    <div class="resume-scroll"><img class="resume-image" alt="Aryan Thakur's resume. Use Download for the PDF." width="1854" height="2400" decoding="async" /></div>
   </dialog>
 
   <script>
@@ -2681,13 +2707,19 @@
       var dialog = document.querySelector('.resume-viewer');
       if (!dialog || !dialog.showModal) return; // very old browser: links just open the PDF
       var frame = dialog.querySelector('.resume-frame');
+      var image = dialog.querySelector('.resume-image');
+      var phone = window.matchMedia('(max-width: 700px), (pointer: coarse)');
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var closing = null;
 
       function open(e) {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return; // new-tab clicks still work
         e.preventDefault();
-        if (!frame.src) frame.src = 'resume.pdf#navpanes=0&view=FitH'; // load on first open
+        // Load on first open: an image on phones, the PDF viewer elsewhere.
+        var asImage = phone.matches;
+        dialog.classList.toggle('is-image', asImage);
+        if (asImage) { if (!image.src) image.src = 'assets/resume.png'; }
+        else if (!frame.src) frame.src = 'resume.pdf#navpanes=0&view=FitH';
         clearTimeout(closing);
         dialog.classList.remove('is-closing');
         if (!dialog.open) dialog.showModal();
